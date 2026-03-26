@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Djurspel">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦕</text></svg>">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+  <title>Djurspel 🦕</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <header id="header">
+      <h1>🦕 Djurspel 🐱</h1>
+    </header>
+
+    <div id="start-screen" class="screen active">
+      <div class="start-content">
+        <div class="big-emoji bounce">🦖</div>
+        <h2>Minneslek!</h2>
+        <p>Hitta alla par!</p>
+        <button class="btn btn-start" onclick="startGame(4)">
+          <span>Lätt</span>
+          <small>4 par</small>
+        </button>
+        <button class="btn btn-start btn-green" onclick="startGame(6)">
+          <span>Medel</span>
+          <small>6 par</small>
+        </button>
+      </div>
+    </div>
+
+    <div id="game-screen" class="screen">
+      <div id="score-bar">
+        <div id="stars"></div>
+        <button class="btn btn-small" onclick="showStartScreen()">↩️</button>
+      </div>
+      <div id="board"></div>
+    </div>
+
+    <div id="win-screen" class="screen">
+      <div class="win-content">
+        <div class="big-emoji spin">⭐</div>
+        <h2>Bra jobbat! 🎉</h2>
+        <div id="win-stars"></div>
+        <button class="btn btn-start" onclick="showStartScreen()">Spela igen!</button>
+      </div>
+      <canvas id="confetti-canvas"></canvas>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+[
+  {
+    "id": "a692969c",
+    "label": "dev-server",
+    "command": "cd /Users/erikandersson/vscode/djurspel && python3 -m http.server 8080",
+    "cwd": "/Users/erikandersson/vscode/djurspel",
+    "ownerSessionFile": "/Users/erikandersson/.gsd/sessions/--Users-erikandersson-vscode-djurspel--/2026-03-26T19-55-11-516Z_0a174243-d2c1-41e7-9769-3e6e1caa9289.jsonl",
+    "persistAcrossSessions": false,
+    "startedAt": 1774555427225,
+    "processType": "server",
+    "group": null,
+    "readyPattern": null,
+    "readyPort": 8080,
+    "pid": 3710
+  }
+]
