@@ -1,7 +1,74 @@
-// ===== ANIMAL & DINOSAUR EMOJI POOL =====
-const ANIMALS = ['🐱', '🐶', '🐰', '🐻', '🦊', '🐼', '🐸', '🐨', '🦁', '🐷'];
-const DINOS = ['🦕', '🦖', '🐊', '🦎', '🐢', '🐉'];
-const ALL_EMOJI = [...ANIMALS, ...DINOS];
+// ===== THEME SYSTEM =====
+const THEMES = ['default', 'jungle'];
+let currentTheme = 'default';
+
+function initTheme() {
+  const saved = localStorage.getItem('djurspel-theme');
+  if (saved && THEMES.includes(saved)) {
+    currentTheme = saved;
+  }
+  applyTheme(currentTheme);
+}
+
+function setTheme(theme) {
+  if (!THEMES.includes(theme)) return;
+  currentTheme = theme;
+  localStorage.setItem('djurspel-theme', theme);
+  applyTheme(theme);
+}
+
+function applyTheme(theme) {
+  if (theme === 'default') {
+    document.documentElement.removeAttribute('data-theme');
+  } else {
+    document.documentElement.setAttribute('data-theme', theme);
+  }
+
+  // Update theme picker active state
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.theme === theme);
+  });
+}
+
+// Preload theme assets to prevent flash
+function preloadThemeAssets() {
+  const assets = [
+    'assets/themes/default/bg.webp',
+    'assets/themes/default/card-back.webp',
+    'assets/themes/jungle/bg.webp',
+    'assets/themes/jungle/card-back.webp',
+  ];
+  assets.forEach(src => {
+    const img = new Image();
+    img.src = src;
+  });
+}
+
+// Initialize theme on load
+initTheme();
+preloadThemeAssets();
+
+// ===== ANIMAL & DINOSAUR ILLUSTRATION POOL =====
+const ANIMALS = [
+  { id: 'cat', img: 'assets/animals/cat.webp' },
+  { id: 'dog', img: 'assets/animals/dog.webp' },
+  { id: 'rabbit', img: 'assets/animals/rabbit.webp' },
+  { id: 'bear', img: 'assets/animals/bear.webp' },
+  { id: 'fox', img: 'assets/animals/fox.webp' },
+  { id: 'panda', img: 'assets/animals/panda.webp' },
+  { id: 'frog', img: 'assets/animals/frog.webp' },
+  { id: 'koala', img: 'assets/animals/koala.webp' },
+  { id: 'lion', img: 'assets/animals/lion.webp' },
+  { id: 'pig', img: 'assets/animals/pig.webp' },
+];
+const DINOS = [
+  { id: 'brontosaurus', img: 'assets/animals/brontosaurus.webp' },
+  { id: 'trex', img: 'assets/animals/trex.webp' },
+  { id: 'crocodile', img: 'assets/animals/crocodile.webp' },
+  { id: 'lizard', img: 'assets/animals/lizard.webp' },
+  { id: 'turtle', img: 'assets/animals/turtle.webp' },
+  { id: 'dragon', img: 'assets/animals/dragon.webp' },
+];
 
 // ===== STATE =====
 let cards = [];
@@ -47,40 +114,32 @@ function playTone(freq, duration, type = 'sine', vol = 0.3) {
 
 function playFlipSound() {
   if (!audioCtx) return;
-  // Quick bright "pop" — rising tone
   playTone(600, 0.08, 'sine', 0.2);
   setTimeout(() => playTone(900, 0.06, 'sine', 0.15), 30);
 }
 
 function playMatchSound() {
   if (!audioCtx) return;
-  // Happy ascending chime — three rising notes
-  playTone(523, 0.15, 'sine', 0.25);  // C5
-  setTimeout(() => playTone(659, 0.15, 'sine', 0.25), 100);  // E5
-  setTimeout(() => playTone(784, 0.25, 'sine', 0.3), 200);   // G5
+  playTone(523, 0.15, 'sine', 0.25);
+  setTimeout(() => playTone(659, 0.15, 'sine', 0.25), 100);
+  setTimeout(() => playTone(784, 0.25, 'sine', 0.3), 200);
 }
 
 function playMismatchSound() {
   if (!audioCtx) return;
-  // Gentle low "boop boop" — not scary
   playTone(280, 0.15, 'triangle', 0.15);
   setTimeout(() => playTone(220, 0.2, 'triangle', 0.12), 120);
 }
 
 function playWinSound() {
   if (!audioCtx) return;
-  // Triumphant fanfare — ascending major arpeggio with sparkle
   const notes = [
-    [523, 0.18, 0],     // C5
-    [587, 0.18, 120],   // D5
-    [659, 0.18, 240],   // E5
-    [784, 0.18, 360],   // G5
-    [1047, 0.35, 480],  // C6
+    [523, 0.18, 0], [587, 0.18, 120], [659, 0.18, 240],
+    [784, 0.18, 360], [1047, 0.35, 480],
   ];
   notes.forEach(([freq, dur, delay]) => {
     setTimeout(() => playTone(freq, dur, 'sine', 0.25), delay);
   });
-  // Sparkle overtones
   setTimeout(() => {
     playTone(1568, 0.3, 'sine', 0.1);
     playTone(2093, 0.4, 'sine', 0.08);
@@ -89,14 +148,26 @@ function playWinSound() {
 
 function playStartSound() {
   if (!audioCtx) return;
-  // Quick cheerful "let's go" — two bright pops
   playTone(440, 0.1, 'sine', 0.2);
   setTimeout(() => playTone(660, 0.12, 'sine', 0.25), 80);
 }
 
+function playShuffleSound() {
+  if (!audioCtx) return;
+  // Quick cascading shuffle — descending pops
+  for (let i = 0; i < 5; i++) {
+    setTimeout(() => playTone(500 - i * 40, 0.06, 'sine', 0.12), i * 50);
+  }
+}
+
 // ===== SCREENS =====
 function showScreen(screen) {
-  [startScreen, gameScreen, winScreen].forEach(s => s.classList.remove('active'));
+  const prev = document.querySelector('.screen.active');
+  if (prev && prev !== screen) {
+    prev.classList.add('screen-exit');
+    prev.classList.remove('active');
+    setTimeout(() => prev.classList.remove('screen-exit'), 400);
+  }
   screen.classList.add('active');
 }
 
@@ -114,15 +185,13 @@ function startGame(pairs) {
   flippedCards = [];
   isLocked = false;
 
-  // Pick random emoji — always include at least 1 dino and 1 animal
+  // Pick random animals — always include at least 1 dino and 1 animal
   const shuffledAnimals = [...ANIMALS].sort(() => Math.random() - 0.5);
   const shuffledDinos = [...DINOS].sort(() => Math.random() - 0.5);
 
-  let selected = [];
-  // Guarantee mix: at least 1 dino, rest animals (or vice versa)
   const dinoCount = Math.max(1, Math.floor(Math.random() * Math.min(3, pairs)));
   const animalCount = pairs - dinoCount;
-  selected = [
+  const selected = [
     ...shuffledDinos.slice(0, dinoCount),
     ...shuffledAnimals.slice(0, animalCount),
   ];
@@ -130,7 +199,7 @@ function startGame(pairs) {
   // Create pairs and shuffle
   const cardData = [...selected, ...selected]
     .sort(() => Math.random() - 0.5)
-    .map((emoji, i) => ({ id: i, emoji, flipped: false, matched: false }));
+    .map((animal, i) => ({ id: i, animalId: animal.id, img: animal.img, flipped: false, matched: false }));
 
   cards = cardData;
 
@@ -145,11 +214,12 @@ function startGame(pairs) {
     el.innerHTML = `
       <div class="card-inner">
         <div class="card-face card-back"></div>
-        <div class="card-face card-front">${card.emoji}</div>
+        <div class="card-face card-front">
+          <img src="${card.img}" alt="${card.animalId}" draggable="false" />
+        </div>
       </div>
     `;
     el.addEventListener('click', () => flipCard(card.id));
-    // Prevent double-tap zoom on iPad
     el.addEventListener('touchend', (e) => {
       e.preventDefault();
       flipCard(card.id);
@@ -157,27 +227,95 @@ function startGame(pairs) {
     board.appendChild(el);
   });
 
-  // Stars
   updateStars();
   showScreen(gameScreen);
 
-  // Brief flash reveal for toddlers — show all cards for 2s then hide
-  revealAllBriefly();
+  // Brief reveal → shuffle → unlock
+  revealThenShuffle();
 }
 
-function revealAllBriefly() {
+// ===== REVEAL THEN SHUFFLE =====
+function revealThenShuffle() {
   isLocked = true;
-  const allCardEls = board.querySelectorAll('.card');
+  const allCardEls = [...board.querySelectorAll('.card')];
 
-  // Stagger the reveal with the deal animation
+  // Phase 1: Deal in, then flip to reveal (600ms after deal)
   setTimeout(() => {
     allCardEls.forEach(el => el.classList.add('flipped'));
   }, 600);
 
+  // Phase 2: Flip back (at 2800ms)
   setTimeout(() => {
     allCardEls.forEach(el => el.classList.remove('flipped'));
-    isLocked = false;
   }, 2800);
+
+  // Phase 3: Shuffle positions (at 3400ms — after flip-back animation completes)
+  setTimeout(() => {
+    shuffleCardPositions();
+  }, 3400);
+}
+
+function shuffleCardPositions() {
+  const cardEls = [...board.querySelectorAll('.card')];
+  const count = cardEls.length;
+
+  // Record current bounding rects
+  const firstRects = cardEls.map(el => el.getBoundingClientRect());
+
+  // Fisher-Yates shuffle of DOM order — guarantee no card stays in same slot
+  const indices = cardEls.map((_, i) => i);
+  let shuffled;
+  do {
+    shuffled = [...indices].sort(() => Math.random() - 0.5);
+  } while (shuffled.some((val, i) => val === i) && count > 1);
+
+  // Reorder DOM
+  const parent = board;
+  const fragment = document.createDocumentFragment();
+  shuffled.forEach(i => fragment.appendChild(cardEls[i]));
+  parent.appendChild(fragment);
+
+  // FLIP animation: record new rects, apply inverse transform, animate to 0
+  const reorderedEls = [...board.querySelectorAll('.card')];
+  reorderedEls.forEach((el, newIndex) => {
+    const oldIndex = shuffled.indexOf(
+      parseInt(
+        [...cardEls].indexOf(el).toString()
+      )
+    );
+    // Find this element's original position
+    const origIdx = cardEls.indexOf(el);
+    const firstRect = firstRects[origIdx];
+    const lastRect = el.getBoundingClientRect();
+
+    const dx = firstRect.left - lastRect.left;
+    const dy = firstRect.top - lastRect.top;
+
+    if (dx === 0 && dy === 0) return;
+
+    el.style.transform = `translate(${dx}px, ${dy}px)`;
+    el.style.transition = 'none';
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        el.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        el.style.transform = 'translate(0, 0)';
+
+        el.addEventListener('transitionend', function handler() {
+          el.style.transform = '';
+          el.style.transition = '';
+          el.removeEventListener('transitionend', handler);
+        });
+      });
+    });
+  });
+
+  playShuffleSound();
+
+  // Unlock after shuffle animation
+  setTimeout(() => {
+    isLocked = false;
+  }, 600);
 }
 
 // ===== GAME LOGIC =====
@@ -198,7 +336,7 @@ function flipCard(id) {
     isLocked = true;
     const [a, b] = flippedCards;
 
-    if (a.emoji === b.emoji) {
+    if (a.animalId === b.animalId) {
       matchFound(a, b);
     } else {
       mismatch(a, b);

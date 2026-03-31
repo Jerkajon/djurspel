@@ -1,0 +1,824 @@
+{
+  "version": 1,
+  "exported_at": "2026-03-31T21:09:35.948Z",
+  "milestones": [
+    {
+      "id": "M001",
+      "title": "",
+      "status": "queued",
+      "depends_on": [],
+      "created_at": "2026-03-26T20:23:20.756Z",
+      "completed_at": null,
+      "vision": "Transform the game from emoji placeholders to a fully illustrated, themed experience — AI-generated animal art, multiple visual themes with real backgrounds and card backs, richer animations, atmospheric sound, and the kind of tactile feel that makes a toddler want to keep tapping.",
+      "success_criteria": [
+        "All card faces show AI-generated illustrated animals instead of emoji",
+        "At least 2 selectable visual themes with distinct AI-generated backgrounds, card backs, and color palettes",
+        "All card interactions (flip, match, mismatch) have layered animations with appropriate easing and timing",
+        "Background ambient sound and improved SFX with mute toggle",
+        "Screen transitions are smooth and intentional — no jarring cuts",
+        "Game feels responsive and tactile on iPad (primary target device)",
+        "PWA service worker cache updated for new image assets",
+        "Total asset payload stays under 2MB for fast loading"
+      ],
+      "key_risks": [
+        {
+          "risk": "Image generation consistency across a set of animals",
+          "whyItMatters": "Each card needs a distinct animal in the same art style. Imagen prompt engineering must produce cohesive sets, not random styles per image."
+        },
+        {
+          "risk": "Asset payload size for PWA",
+          "whyItMatters": "16 animal illustrations + theme backgrounds + card backs could bloat the app. Need to compress aggressively and consider lazy loading."
+        },
+        {
+          "risk": "Animation performance with image-based cards",
+          "whyItMatters": "CSS 3D transforms on image-heavy cards may perform differently than emoji text nodes. Need to verify on iPad."
+        },
+        {
+          "risk": "Web Audio ambient sound may not auto-play on iOS",
+          "whyItMatters": "iOS requires user gesture before audio context can play. Background music needs careful activation UX."
+        },
+        {
+          "risk": "Theme switching complexity in vanilla CSS",
+          "whyItMatters": "Themes now include swapping images (not just colors), so theme switching needs to preload assets to avoid flash of broken images."
+        }
+      ],
+      "proof_strategy": [
+        {
+          "riskOrUnknown": "Image style consistency",
+          "retireIn": "S01",
+          "whatWillBeProven": "A full set of 16 animal illustrations generated with consistent style, verified visually"
+        },
+        {
+          "riskOrUnknown": "Asset payload size",
+          "retireIn": "S01",
+          "whatWillBeProven": "Total compressed image payload measured and kept under budget"
+        },
+        {
+          "riskOrUnknown": "Animation performance with images",
+          "retireIn": "S02",
+          "whatWillBeProven": "Card flip animations with image faces run at 60fps — verified in browser dev tools"
+        },
+        {
+          "riskOrUnknown": "iOS audio restrictions",
+          "retireIn": "S04",
+          "whatWillBeProven": "Audio plays correctly after first user tap, mute toggle works, no console errors"
+        },
+        {
+          "riskOrUnknown": "Theme asset preloading",
+          "retireIn": "S03",
+          "whatWillBeProven": "Switching themes loads new assets without visible flash or layout shift"
+        }
+      ],
+      "verification_contract": "Each slice verified by serving locally and testing in browser. Images checked for visual consistency, animations for smoothness, themes for completeness, audio for correct behavior.",
+      "verification_integration": "After all slices: full playthrough on each theme, all difficulty levels, with sound on/off, verifying no regressions and acceptable load times.",
+      "verification_operational": "PWA cache version bumped, service worker updated with new asset list, offline mode tested with all theme assets cached.",
+      "verification_uat": "Play the game start to finish on each theme — it should feel polished, illustrated, and fun. Cards should look like a real children's game, not a tech demo.",
+      "definition_of_done": [
+        "All 16 animal card illustrations generated and compressed",
+        "2+ complete themes with generated backgrounds and card backs",
+        "Animations run without jank in browser",
+        "Sound/music with mute toggle",
+        "Screen transitions are animated",
+        "Service worker cache updated with all new assets",
+        "Total initial payload under 2MB",
+        "No console errors or warnings"
+      ],
+      "requirement_coverage": "No formal requirements defined yet — this milestone establishes the visual quality bar and asset pipeline.",
+      "boundary_map_markdown": "```\n[Asset Pipeline]     → [Image Assets]  → [SW Cache]\n tools/generate-*.js    assets/animals/    sw.js\n                         assets/themes/\n\n[Start Screen] → [Game Screen] → [Win Screen]\n     ↑               |                |\n     └───────────────┘────────────────┘\n\nTheme: CSS custom props + asset swapping via data-theme\nAudio: Web Audio synthesis, initialized on first gesture\nImages: Pre-generated PNGs, compressed, cached by SW\n```"
+    }
+  ],
+  "slices": [
+    {
+      "milestone_id": "M001",
+      "id": "S01",
+      "title": "Animation & Interaction Juice",
+      "status": "complete",
+      "risk": "medium",
+      "depends": [],
+      "demo": "Cards flip with springy overshoot, matches pulse and glow, mismatches wobble, screen transitions slide smoothly, deal animation staggers naturally",
+      "created_at": "2026-03-31T20:28:35.967Z",
+      "completed_at": "2026-03-31T20:56:57.497Z",
+      "full_summary_md": "---\nid: S01\nparent: M001\nmilestone: M001\nprovides:\n  - 16 animal illustrations in assets/animals/*.webp\n  - 2 complete theme asset sets in assets/themes/\n  - Image generation tooling in tools/\nrequires:\n  []\naffects:\n  - S02\n  - S03\nkey_files:\n  - assets/animals/*.webp\n  - assets/themes/default/*.webp\n  - assets/themes/jungle/*.webp\n  - tools/generate-image.js\n  - tools/generate-all-animals.js\nkey_decisions:\n  - Kawaii flat-vector prompt template for consistent art style\n  - Imagen 4 Fast at $0.02/image for all generation\n  - WebP compression at 85/80 quality — 232KB total\n  - Animals at 256px, card backs at 512px, backgrounds at 1024px\npatterns_established:\n  - Imagen 4 prompt template for consistent kawaii style\n  - Asset pipeline: generate PNG → resize with sips → compress to WebP with cwebp\n  - Rate-limit mitigation: retry with backoff, concurrency of 2\nobservability_surfaces:\n  - none\ndrill_down_paths:\n  - .gsd/milestones/M001/slices/S01/tasks/T01-SUMMARY.md\n  - .gsd/milestones/M001/slices/S01/tasks/T02-SUMMARY.md\n  - .gsd/milestones/M001/slices/S01/tasks/T03-SUMMARY.md\n  - .gsd/milestones/M001/slices/S01/tasks/T04-SUMMARY.md\nduration: \"\"\nverification_result: passed\ncompleted_at: 2026-03-31T20:56:57.497Z\nblocker_discovered: false\n---\n\n# S01: Asset Generation & Pipeline\n\n**Generated and compressed a full illustrated asset set — 16 animals + 2 themes — totaling 232KB in WebP.**\n\n## What Happened\n\nGenerated a complete illustrated asset set for the game using Imagen 4 Fast API. Established a kawaii flat-vector prompt template that produces consistent style across all 16 animals. Generated theme-specific card backs and backgrounds for default (purple/magical) and jungle (green/tropical) themes. Compressed everything from ~12MB raw PNGs to 232KB WebP — well under the 1.5MB budget.\n\n## Verification\n\nAll 20 WebP assets present. Total size 232KB (budget 1.5MB). Visual inspection confirms consistent style and quality at display dimensions.\n\n## Requirements Advanced\n\nNone.\n\n## Requirements Validated\n\nNone.\n\n## New Requirements Surfaced\n\nNone.\n\n## Requirements Invalidated or Re-scoped\n\nNone.\n\n## Deviations\n\nHit Imagen 4 rate limit (10 req/min) during animal generation. Added retry logic with backoff to the generator script.\n\n## Known Limitations\n\nImagen 4 rate limit is 10 req/min on free tier — regenerating assets requires patience.\n\n## Follow-ups\n\nNone.\n\n## Files Created/Modified\n\n- `assets/animals/` — 16 kawaii animal illustrations (WebP, 256px)\n- `assets/themes/default/` — Default theme card back + background (WebP)\n- `assets/themes/jungle/` — Jungle theme card back + background (WebP)\n- `tools/generate-image.js` — Image generation utility script\n- `tools/generate-all-animals.js` — Batch animal generator with retry logic\n",
+      "full_uat_md": "# S01: Asset Generation & Pipeline — UAT\n\n**Milestone:** M001\n**Written:** 2026-03-31T20:56:57.498Z\n\n## UAT: Asset Generation & Pipeline\\n\\n- [ ] 16 animal WebP files exist in assets/animals/\\n- [ ] Each animal is visually distinct and recognizable\\n- [ ] All animals share consistent kawaii flat-vector style\\n- [ ] Default theme has card-back.webp and bg.webp\\n- [ ] Jungle theme has card-back.webp and bg.webp\\n- [ ] Each theme has distinct visual identity\\n- [ ] Total asset size under 1.5MB (actual: 232KB)\\n- [ ] Images load correctly in browser (WebP support)\n",
+      "goal": "Generate a complete set of illustrated animal cards, theme backgrounds, and card back designs using Imagen 4. Compress and organize assets. Establish the art style and prompt patterns.",
+      "success_criteria": "16 animal illustrations in consistent flat cartoon style. At least 2 card back designs. At least 2 background images/patterns. All images compressed. Total asset size under 1.5MB. Asset directory structure established.",
+      "proof_level": "Visual inspection of generated assets + file size verification",
+      "integration_closure": "Assets are standalone files in assets/ — no code changes yet",
+      "observability_impact": "None — asset files only",
+      "sequence": 0,
+      "replan_triggered_at": null
+    },
+    {
+      "milestone_id": "M001",
+      "id": "S02",
+      "title": "Theme System & Visual Variety",
+      "status": "complete",
+      "risk": "high",
+      "depends": [
+        "S01"
+      ],
+      "demo": "Start screen shows theme picker. Selecting a theme instantly changes background gradient, card back design, button colors, and overall mood. At least 2 themes: default purple/blue and a warm jungle theme.",
+      "created_at": "2026-03-31T20:28:35.967Z",
+      "completed_at": "2026-03-31T21:04:10.221Z",
+      "full_summary_md": "---\nid: S02\nparent: M001\nmilestone: M001\nprovides:\n  - Image-based card rendering in game.js\n  - Post-reveal shuffle mechanic\n  - Polished animation system in style.css\nrequires:\n  - slice: S01\n    provides: 16 animal illustrations in assets/animals/*.webp\naffects:\n  - S03\n  - S04\nkey_files:\n  - game.js\n  - style.css\nkey_decisions:\n  - FLIP animation technique for shuffle (record rects, reorder DOM, apply inverse transform, animate)\n  - Fisher-Yates with no-fixed-point guarantee\n  - Spring easing via cubic-bezier(0.175, 0.885, 0.32, 1.275) for card flips\n  - Match comparison on animalId string, not image path\npatterns_established:\n  - FLIP animation technique for DOM reordering with smooth transitions\n  - Spring easing via cubic-bezier overshoot\n  - Structured animal objects {id, img} instead of raw emoji strings\nobservability_surfaces:\n  - none\ndrill_down_paths:\n  - .gsd/milestones/M001/slices/S02/tasks/T01-SUMMARY.md\n  - .gsd/milestones/M001/slices/S02/tasks/T02-SUMMARY.md\n  - .gsd/milestones/M001/slices/S02/tasks/T03-SUMMARY.md\n  - .gsd/milestones/M001/slices/S02/tasks/T04-SUMMARY.md\nduration: \"\"\nverification_result: passed\ncompleted_at: 2026-03-31T21:04:10.222Z\nblocker_discovered: false\n---\n\n# S02: Animation & Interaction Juice\n\n**Cards now show kawaii illustrations, shuffle after reveal, and have polished spring/bounce/wobble animations.**\n\n## What Happened\n\nRewrote game.js and style.css to replace emoji cards with illustrated WebP images, add a post-reveal shuffle that animates cards to new positions using the FLIP technique, and polish all animations with spring physics, damped bounces, and smooth screen transitions. All verified in browser with zero console errors.\n\n## Verification\n\nFull browser playthrough: illustrated cards display, reveal+shuffle sequence animates correctly, match/mismatch animations fire, screen transitions smooth. browser_assert: 3/3 checks passed (no console errors, no failed requests, board visible).\n\n## Requirements Advanced\n\nNone.\n\n## Requirements Validated\n\nNone.\n\n## New Requirements Surfaced\n\nNone.\n\n## Requirements Invalidated or Re-scoped\n\nNone.\n\n## Deviations\n\nCombined T01-T03 into a single cohesive rewrite of game.js and style.css rather than three separate patches — cleaner result.\n\n## Known Limitations\n\nNone.\n\n## Follow-ups\n\nNone.\n\n## Files Created/Modified\n\n- `game.js` — Complete rewrite: image-based cards, FLIP shuffle, spring easing, screen transitions, shuffle sound\n- `style.css` — Polished animations: spring flip, 7-step match bounce, damped wobble, screen transitions, press feedback\n",
+      "full_uat_md": "# S02: Animation & Interaction Juice — UAT\n\n**Milestone:** M001\n**Written:** 2026-03-31T21:04:10.222Z\n\n## UAT: Animation & Interaction Juice\\n\\n- [ ] Cards show illustrated animals instead of emoji\\n- [ ] Cards reveal briefly at game start, then shuffle to new positions\\n- [ ] No card stays in same position after shuffle\\n- [ ] Card flip has springy overshoot animation\\n- [ ] Match celebration: scale bounce + green glow border\\n- [ ] Mismatch: wobble shake with rotation\\n- [ ] Screen transitions are smooth (scale + fade)\\n- [ ] Star pop animation on earn\\n- [ ] Card backs show press feedback on tap\\n- [ ] No console errors during full playthrough\\n- [ ] Works at both difficulty levels (4 and 6 pairs)\n",
+      "goal": "Upgrade all game interactions to use illustrated cards with layered animations. Replace emoji with image-based cards. Add post-reveal shuffle so cards move to new positions after the initial peek.",
+      "success_criteria": "Card faces show illustrated animals instead of emoji. Cards reveal briefly then shuffle to new positions with animation before gameplay starts. Card flip feels springy. Match celebration has scale + glow. Mismatch has wobble. Screen transitions are smooth. 60fps on target devices.",
+      "proof_level": "Browser visual verification + performance check",
+      "integration_closure": "HTML updated to use <img> in cards, CSS animations refined, JS card rendering and shuffle logic updated",
+      "observability_impact": "None — visual-only changes",
+      "sequence": 0,
+      "replan_triggered_at": null
+    },
+    {
+      "milestone_id": "M001",
+      "id": "S03",
+      "title": "Sound & Atmosphere",
+      "status": "complete",
+      "risk": "medium",
+      "depends": [
+        "S01"
+      ],
+      "demo": "Game has subtle background ambient loop. SFX are richer (layered tones). Mute button visible on all screens. Sound preference persists.",
+      "created_at": "2026-03-31T20:28:35.967Z",
+      "completed_at": "2026-03-31T21:09:27.053Z",
+      "full_summary_md": "---\nid: S03\nparent: M001\nmilestone: M001\nprovides:\n  - Theme system in CSS/JS\n  - Theme picker UI\n  - Two complete visual themes\nrequires:\n  - slice: S01\n    provides: Theme asset sets (card backs + backgrounds)\n  - slice: S02\n    provides: Image-based card rendering and animation system\naffects:\n  - S05\nkey_files:\n  - style.css\n  - index.html\n  - game.js\nkey_decisions:\n  - Theme system via CSS custom properties + data-theme attribute on html\n  - Card backs use generated WebP patterns instead of CSS gradients\n  - Asset preloading prevents flash on theme switch\npatterns_established:\n  - CSS custom property theming via [data-theme] attribute\n  - Asset preloading with new Image() to prevent flash\nobservability_surfaces:\n  - localStorage 'djurspel-theme' key\ndrill_down_paths:\n  - .gsd/milestones/M001/slices/S03/tasks/T01-SUMMARY.md\n  - .gsd/milestones/M001/slices/S03/tasks/T02-SUMMARY.md\n  - .gsd/milestones/M001/slices/S03/tasks/T03-SUMMARY.md\nduration: \"\"\nverification_result: passed\ncompleted_at: 2026-03-31T21:09:27.054Z\nblocker_discovered: false\n---\n\n# S03: Theme System & Visual Variety\n\n**Two complete visual themes with AI-generated backgrounds and card backs, instant switching, persistent preference.**\n\n## What Happened\n\nImplemented a complete theme system with CSS custom properties driving all visual changes. Two themes — default (purple/magical with bubbles) and jungle (green/tropical with kawaii trees). Theme picker on start screen, instant switching, localStorage persistence, asset preloading. Card backs now use AI-generated WebP patterns.\n\n## Verification\n\nBoth themes verified in browser. Theme picker works, switching is instant, localStorage persistence confirmed, no console errors, no failed requests.\n\n## Requirements Advanced\n\nNone.\n\n## Requirements Validated\n\nNone.\n\n## New Requirements Surfaced\n\nNone.\n\n## Requirements Invalidated or Re-scoped\n\nNone.\n\n## Deviations\n\nNone.\n\n## Known Limitations\n\nNone.\n\n## Follow-ups\n\nNone.\n\n## Files Created/Modified\n\n- `style.css` — CSS custom property theme system, two complete theme rulesets, themed card backs, theme picker styles\n- `index.html` — Theme picker buttons in start screen\n- `game.js` — Theme switching JS, localStorage persistence, asset preloading\n",
+      "full_uat_md": "# S03: Theme System & Visual Variety — UAT\n\n**Milestone:** M001\n**Written:** 2026-03-31T21:09:27.055Z\n\n## UAT: Theme System & Visual Variety\\n\\n- [ ] Theme picker visible on start screen with 2 options\\n- [ ] Default theme: purple/blue bubble background, paw-print card backs\\n- [ ] Jungle theme: green jungle background, leaf-pattern card backs, orange buttons\\n- [ ] Theme switches instantly, no flash or layout shift\\n- [ ] Theme choice persists after page reload\\n- [ ] All screens (start, game, win) respond to theme\\n- [ ] Card backs use generated WebP artwork\\n- [ ] No console errors during theme switching\n",
+      "goal": "Implement a theme system that swaps color palettes, backgrounds, and card back designs. Theme picker on start screen with at least 2 complete themes.",
+      "success_criteria": "Theme picker on start screen. Theme applies instantly to all screens. Each theme has unique background, card back, button colors, accents. Theme persists in localStorage. No flash on switch.",
+      "proof_level": "Browser visual verification + localStorage check + no layout shift",
+      "integration_closure": "Themes use data-theme attribute on body, CSS custom properties for colors, JS swaps image sources for themed assets",
+      "observability_impact": "Theme name stored in localStorage",
+      "sequence": 0,
+      "replan_triggered_at": null
+    },
+    {
+      "milestone_id": "M001",
+      "id": "S04",
+      "title": "Final Integration & PWA Update",
+      "status": "pending",
+      "risk": "low",
+      "depends": [
+        "S01",
+        "S02",
+        "S03"
+      ],
+      "demo": "Full playthrough with themes and sound — everything works together. PWA installs cleanly with updated cache.",
+      "created_at": "2026-03-31T20:28:35.967Z",
+      "completed_at": null,
+      "full_summary_md": "",
+      "full_uat_md": "",
+      "goal": "Add ambient background sound, improve existing SFX with richer synthesis, and add a mute toggle that persists.",
+      "success_criteria": "Ambient background pad plays during gameplay (gentle, loopable). Existing SFX (flip, match, mismatch, win) are richer with layered harmonics and better envelopes. Mute/unmute button on score bar and start screen. Sound preference saved to localStorage. Works correctly on iOS (audio starts after first tap).",
+      "proof_level": "Browser audio verification + iOS behavior check",
+      "integration_closure": "Audio engine stays in game.js — mute button added to HTML, preference in localStorage",
+      "observability_impact": "Sound preference in localStorage",
+      "sequence": 0,
+      "replan_triggered_at": null
+    },
+    {
+      "milestone_id": "M001",
+      "id": "S05",
+      "title": "Final Integration & PWA Update",
+      "status": "pending",
+      "risk": "low",
+      "depends": [
+        "S01",
+        "S02",
+        "S03",
+        "S04"
+      ],
+      "demo": "Full playthrough with each theme, sound on/off, both difficulty levels. Install as PWA, go offline, play again — everything works.",
+      "created_at": "2026-03-31T20:36:23.631Z",
+      "completed_at": null,
+      "full_summary_md": "",
+      "full_uat_md": "",
+      "goal": "Integration testing, PWA cache update with all new assets, and final polish pass.",
+      "success_criteria": "All themes × all difficulty levels work correctly. Sound + theme preferences persist across sessions. Service worker cache version bumped with full asset list. Offline mode works with all theme assets. Total payload verified under 2MB. No console errors.",
+      "proof_level": "Full playthrough verification + offline test + payload measurement",
+      "integration_closure": "All slices integrated, SW cache updated, version bumped, .gitignore updated for tools",
+      "observability_impact": "Updated SW cache version",
+      "sequence": 0,
+      "replan_triggered_at": null
+    }
+  ],
+  "tasks": [
+    {
+      "milestone_id": "M001",
+      "slice_id": "S01",
+      "id": "T01",
+      "title": "Established asset directory structure and locked in a consistent kawaii art style prompt template.",
+      "status": "complete",
+      "one_liner": "Established asset directory structure and locked in a consistent kawaii art style prompt template.",
+      "narrative": "Created asset directory structure. Generated 3 test animals (cat, fox, brontosaurus) to validate the prompt template. All three came out in a cohesive kawaii flat-vector style with consistent proportions, big eyes, round shapes, and clean white backgrounds. Locked in the prompt template for the full set.",
+      "verification_result": "Generated 3 test images (cat, fox, brontosaurus) — all visually consistent in style, proportions, and color palette. Prompt template produces reliable results.",
+      "duration": "",
+      "completed_at": "2026-03-31T20:39:31.478Z",
+      "blocker_discovered": false,
+      "deviations": "None.",
+      "known_issues": "None.",
+      "key_files": [
+        "assets/animals/",
+        "assets/themes/default/",
+        "assets/themes/jungle/"
+      ],
+      "key_decisions": [
+        "Prompt template: 'cute cartoon {animal} face looking at the viewer, kawaii style, flat vector illustration, round shapes, big expressive eyes, soft pastel colors, minimal details, centered on white background, no text, no border, children's game card art'",
+        "Using imagen-4.0-fast-generate-001 for all assets ($0.02/image)"
+      ],
+      "full_summary_md": "---\nid: T01\nparent: S01\nmilestone: M001\nkey_files:\n  - assets/animals/\n  - assets/themes/default/\n  - assets/themes/jungle/\nkey_decisions:\n  - Prompt template: 'cute cartoon {animal} face looking at the viewer, kawaii style, flat vector illustration, round shapes, big expressive eyes, soft pastel colors, minimal details, centered on white background, no text, no border, children's game card art'\n  - Using imagen-4.0-fast-generate-001 for all assets ($0.02/image)\nduration: \"\"\nverification_result: passed\ncompleted_at: 2026-03-31T20:39:31.478Z\nblocker_discovered: false\n---\n\n# T01: Established asset directory structure and locked in a consistent kawaii art style prompt template.\n\n**Established asset directory structure and locked in a consistent kawaii art style prompt template.**\n\n## What Happened\n\nCreated asset directory structure. Generated 3 test animals (cat, fox, brontosaurus) to validate the prompt template. All three came out in a cohesive kawaii flat-vector style with consistent proportions, big eyes, round shapes, and clean white backgrounds. Locked in the prompt template for the full set.\n\n## Verification\n\nGenerated 3 test images (cat, fox, brontosaurus) — all visually consistent in style, proportions, and color palette. Prompt template produces reliable results.\n\n## Verification Evidence\n\n| # | Command | Exit Code | Verdict | Duration |\n|---|---------|-----------|---------|----------|\n| 1 | `node tools/generate-image.js (cat, fox, dino)` | 0 | ✅ pass — all 3 images consistent style | 6400ms |\n\n\n## Deviations\n\nNone.\n\n## Known Issues\n\nNone.\n\n## Files Created/Modified\n\n- `assets/animals/`\n- `assets/themes/default/`\n- `assets/themes/jungle/`\n",
+      "description": "Create assets/ directory structure (animals/, themes/default/, themes/jungle/). Generate 2-3 test animals to find the right prompt formula for consistent style. Compare results and lock in the prompt template.",
+      "estimate": "10min",
+      "files": [
+        "assets/animals/",
+        "tools/generate-image.js"
+      ],
+      "verify": "Visual inspection of test images for style consistency",
+      "inputs": [
+        "tools/generate-image.js"
+      ],
+      "expected_output": [
+        "assets/ directory structure",
+        "2-3 test animal PNGs",
+        "Documented prompt template"
+      ],
+      "observability_impact": "",
+      "full_plan_md": "",
+      "sequence": 0
+    },
+    {
+      "milestone_id": "M001",
+      "slice_id": "S01",
+      "id": "T02",
+      "title": "Generated all 16 kawaii animal illustrations with consistent art style.",
+      "status": "complete",
+      "one_liner": "Generated all 16 kawaii animal illustrations with consistent art style.",
+      "narrative": "Generated all 16 animal illustrations using the locked prompt template. Hit the Imagen 4 rate limit (10 req/min) after the first batch of 11. Added retry logic with 30s backoff and reduced concurrency to 2. Second run completed the remaining 5 animals. Visual spot-check confirms consistent kawaii style across all 16. Raw PNG total is 7.4MB — needs compression.",
+      "verification_result": "All 16 files present in assets/animals/. Visual spot-check of cat, fox, panda, t-rex, dragon confirms consistent kawaii flat-vector style.",
+      "duration": "",
+      "completed_at": "2026-03-31T20:42:34.921Z",
+      "blocker_discovered": false,
+      "deviations": "Hit 10 req/min rate limit after first 11 images. Added retry logic with backoff to generator script. Reduced concurrency from 4 to 2.",
+      "known_issues": "Raw PNGs total 7.4MB — compression in T04 is critical.",
+      "key_files": [
+        "assets/animals/ (16 PNGs)",
+        "tools/generate-all-animals.js"
+      ],
+      "key_decisions": [
+        "Rate-limit mitigation: 30s retry with 2 concurrent workers",
+        "Dragon got full body instead of face-only — keeping it, adds variety"
+      ],
+      "full_summary_md": "---\nid: T02\nparent: S01\nmilestone: M001\nkey_files:\n  - assets/animals/ (16 PNGs)\n  - tools/generate-all-animals.js\nkey_decisions:\n  - Rate-limit mitigation: 30s retry with 2 concurrent workers\n  - Dragon got full body instead of face-only — keeping it, adds variety\nduration: \"\"\nverification_result: passed\ncompleted_at: 2026-03-31T20:42:34.922Z\nblocker_discovered: false\n---\n\n# T02: Generated all 16 kawaii animal illustrations with consistent art style.\n\n**Generated all 16 kawaii animal illustrations with consistent art style.**\n\n## What Happened\n\nGenerated all 16 animal illustrations using the locked prompt template. Hit the Imagen 4 rate limit (10 req/min) after the first batch of 11. Added retry logic with 30s backoff and reduced concurrency to 2. Second run completed the remaining 5 animals. Visual spot-check confirms consistent kawaii style across all 16. Raw PNG total is 7.4MB — needs compression.\n\n## Verification\n\nAll 16 files present in assets/animals/. Visual spot-check of cat, fox, panda, t-rex, dragon confirms consistent kawaii flat-vector style.\n\n## Verification Evidence\n\n| # | Command | Exit Code | Verdict | Duration |\n|---|---------|-----------|---------|----------|\n| 1 | `ls assets/animals/*.png | wc -l` | 0 | ✅ pass — 16 files present | 50ms |\n| 2 | `Visual inspection of 5 samples` | 0 | ✅ pass — consistent style | 5000ms |\n\n\n## Deviations\n\nHit 10 req/min rate limit after first 11 images. Added retry logic with backoff to generator script. Reduced concurrency from 4 to 2.\n\n## Known Issues\n\nRaw PNGs total 7.4MB — compression in T04 is critical.\n\n## Files Created/Modified\n\n- `assets/animals/ (16 PNGs)`\n- `tools/generate-all-animals.js`\n",
+      "description": "Using the locked prompt template, generate all 16 animal illustrations: cat, dog, rabbit, bear, fox, panda, frog, koala, lion, pig + dinosaurs: brontosaurus, t-rex, crocodile, lizard, turtle, dragon. Regenerate any that don't match the style.",
+      "estimate": "15min",
+      "files": [
+        "assets/animals/"
+      ],
+      "verify": "All 16 images present, visually consistent style, correct animals",
+      "inputs": [
+        "Prompt template from T01"
+      ],
+      "expected_output": [
+        "16 animal PNG files in assets/animals/"
+      ],
+      "observability_impact": "",
+      "full_plan_md": "",
+      "sequence": 0
+    },
+    {
+      "milestone_id": "M001",
+      "slice_id": "S01",
+      "id": "T03",
+      "title": "Generated card back and background images for default and jungle themes.",
+      "status": "complete",
+      "one_liner": "Generated card back and background images for default and jungle themes.",
+      "narrative": "Generated all 4 theme assets — card back and background for both default (purple/magical) and jungle (green/tropical) themes. Staggered API calls with 8s delays to avoid rate limiting. All assets visually match their intended theme mood.",
+      "verification_result": "All 4 files present and visually inspected. Each theme has distinct, appropriate card back pattern and background image.",
+      "duration": "",
+      "completed_at": "2026-03-31T20:55:11.175Z",
+      "blocker_discovered": false,
+      "deviations": "None.",
+      "known_issues": "Theme assets are large PNGs (879K-1.9MB each). Compression in T04 is critical.",
+      "key_files": [
+        "assets/themes/default/card-back.png",
+        "assets/themes/default/bg.png",
+        "assets/themes/jungle/card-back.png",
+        "assets/themes/jungle/bg.png"
+      ],
+      "key_decisions": [
+        "Default theme: purple paw-print pattern card back + dreamy bubble gradient background",
+        "Jungle theme: leaf/vine pattern card back + kawaii jungle scene with friendly trees"
+      ],
+      "full_summary_md": "---\nid: T03\nparent: S01\nmilestone: M001\nkey_files:\n  - assets/themes/default/card-back.png\n  - assets/themes/default/bg.png\n  - assets/themes/jungle/card-back.png\n  - assets/themes/jungle/bg.png\nkey_decisions:\n  - Default theme: purple paw-print pattern card back + dreamy bubble gradient background\n  - Jungle theme: leaf/vine pattern card back + kawaii jungle scene with friendly trees\nduration: \"\"\nverification_result: passed\ncompleted_at: 2026-03-31T20:55:11.176Z\nblocker_discovered: false\n---\n\n# T03: Generated card back and background images for default and jungle themes.\n\n**Generated card back and background images for default and jungle themes.**\n\n## What Happened\n\nGenerated all 4 theme assets — card back and background for both default (purple/magical) and jungle (green/tropical) themes. Staggered API calls with 8s delays to avoid rate limiting. All assets visually match their intended theme mood.\n\n## Verification\n\nAll 4 files present and visually inspected. Each theme has distinct, appropriate card back pattern and background image.\n\n## Verification Evidence\n\n| # | Command | Exit Code | Verdict | Duration |\n|---|---------|-----------|---------|----------|\n| 1 | `ls assets/themes/*/` | 0 | ✅ pass — 4 theme assets present | 50ms |\n\n\n## Deviations\n\nNone.\n\n## Known Issues\n\nTheme assets are large PNGs (879K-1.9MB each). Compression in T04 is critical.\n\n## Files Created/Modified\n\n- `assets/themes/default/card-back.png`\n- `assets/themes/default/bg.png`\n- `assets/themes/jungle/card-back.png`\n- `assets/themes/jungle/bg.png`\n",
+      "description": "Generate card back designs: 1 default (purple/playful pattern), 1 jungle (leaf/vine pattern). Generate background images: 1 default gradient/abstract, 1 jungle scene. All at appropriate aspect ratios.",
+      "estimate": "10min",
+      "files": [
+        "assets/themes/default/",
+        "assets/themes/jungle/"
+      ],
+      "verify": "Visual inspection — each theme has distinct card back and background",
+      "inputs": [
+        "Art style established in T01"
+      ],
+      "expected_output": [
+        "assets/themes/default/card-back.png",
+        "assets/themes/default/bg.png",
+        "assets/themes/jungle/card-back.png",
+        "assets/themes/jungle/bg.png"
+      ],
+      "observability_impact": "",
+      "full_plan_md": "",
+      "sequence": 0
+    },
+    {
+      "milestone_id": "M001",
+      "slice_id": "S01",
+      "id": "T04",
+      "title": "Compressed all 20 assets to WebP — total 232KB, 98% reduction from raw PNGs.",
+      "status": "complete",
+      "one_liner": "Compressed all 20 assets to WebP — total 232KB, 98% reduction from raw PNGs.",
+      "narrative": "Resized all assets to appropriate display dimensions using sips, then converted to WebP using cwebp. Animal cards: 1024px → 256px, card backs: 512px, backgrounds: 1024px. Total asset size went from ~12MB raw PNGs to 232KB WebP — 98% reduction. Well under the 1.5MB budget. Visual quality verified at display size.",
+      "verification_result": "Total asset size 232KB (budget: 1.5MB). All 20 WebP files present. Visual spot-check of lion and jungle card-back confirms quality at display size.",
+      "duration": "",
+      "completed_at": "2026-03-31T20:56:33.256Z",
+      "blocker_discovered": false,
+      "deviations": "None.",
+      "known_issues": "None.",
+      "key_files": [
+        "assets/animals/*.webp (16 files)",
+        "assets/themes/default/*.webp (2 files)",
+        "assets/themes/jungle/*.webp (2 files)"
+      ],
+      "key_decisions": [
+        "Animals resized to 256px (card display size), themes card backs 512px, backgrounds 1024px",
+        "WebP quality 85 for animals, 80 for theme assets",
+        "Removed original PNGs to keep repo clean"
+      ],
+      "full_summary_md": "---\nid: T04\nparent: S01\nmilestone: M001\nkey_files:\n  - assets/animals/*.webp (16 files)\n  - assets/themes/default/*.webp (2 files)\n  - assets/themes/jungle/*.webp (2 files)\nkey_decisions:\n  - Animals resized to 256px (card display size), themes card backs 512px, backgrounds 1024px\n  - WebP quality 85 for animals, 80 for theme assets\n  - Removed original PNGs to keep repo clean\nduration: \"\"\nverification_result: passed\ncompleted_at: 2026-03-31T20:56:33.258Z\nblocker_discovered: false\n---\n\n# T04: Compressed all 20 assets to WebP — total 232KB, 98% reduction from raw PNGs.\n\n**Compressed all 20 assets to WebP — total 232KB, 98% reduction from raw PNGs.**\n\n## What Happened\n\nResized all assets to appropriate display dimensions using sips, then converted to WebP using cwebp. Animal cards: 1024px → 256px, card backs: 512px, backgrounds: 1024px. Total asset size went from ~12MB raw PNGs to 232KB WebP — 98% reduction. Well under the 1.5MB budget. Visual quality verified at display size.\n\n## Verification\n\nTotal asset size 232KB (budget: 1.5MB). All 20 WebP files present. Visual spot-check of lion and jungle card-back confirms quality at display size.\n\n## Verification Evidence\n\n| # | Command | Exit Code | Verdict | Duration |\n|---|---------|-----------|---------|----------|\n| 1 | `find assets -name '*.webp' | wc -l` | 0 | ✅ pass — 20 files | 30ms |\n| 2 | `total size calculation` | 0 | ✅ pass — 232KB < 1.5MB budget | 50ms |\n\n\n## Deviations\n\nNone.\n\n## Known Issues\n\nNone.\n\n## Files Created/Modified\n\n- `assets/animals/*.webp (16 files)`\n- `assets/themes/default/*.webp (2 files)`\n- `assets/themes/jungle/*.webp (2 files)`\n",
+      "description": "Convert PNGs to WebP where supported, resize to appropriate dimensions (cards ~256px, backgrounds ~1024px), optimize file sizes. Verify total asset payload stays under 1.5MB. Create an asset manifest listing all files and sizes.",
+      "estimate": "10min",
+      "files": [
+        "assets/"
+      ],
+      "verify": "Total asset size < 1.5MB, all images load correctly, no visual quality loss at display size",
+      "inputs": [
+        "All generated assets from T02, T03"
+      ],
+      "expected_output": [
+        "Compressed assets in assets/",
+        "Asset size report"
+      ],
+      "observability_impact": "",
+      "full_plan_md": "",
+      "sequence": 0
+    },
+    {
+      "milestone_id": "M001",
+      "slice_id": "S02",
+      "id": "T01",
+      "title": "Replaced emoji card faces with illustrated WebP animal images.",
+      "status": "complete",
+      "one_liner": "Replaced emoji card faces with illustrated WebP animal images.",
+      "narrative": "Replaced emoji card pool with structured animal objects containing id and image path. Updated card rendering to use <img> tags loading WebP illustrations. Updated CSS for image-based card faces with proper sizing and padding. Updated match logic to compare animalId instead of emoji.",
+      "verification_result": "Cards show illustrated animals in browser. Both difficulty levels work. Images load correctly from WebP files.",
+      "duration": "",
+      "completed_at": "2026-03-31T21:03:01.127Z",
+      "blocker_discovered": false,
+      "deviations": "None.",
+      "known_issues": "None.",
+      "key_files": [
+        "game.js",
+        "style.css"
+      ],
+      "key_decisions": [
+        "Card faces use <img> with WebP sources and object-fit:contain",
+        "Cards have 8% padding inside face for visual breathing room",
+        "Match comparison uses animalId string, not image path"
+      ],
+      "full_summary_md": "---\nid: T01\nparent: S02\nmilestone: M001\nkey_files:\n  - game.js\n  - style.css\nkey_decisions:\n  - Card faces use <img> with WebP sources and object-fit:contain\n  - Cards have 8% padding inside face for visual breathing room\n  - Match comparison uses animalId string, not image path\nduration: \"\"\nverification_result: passed\ncompleted_at: 2026-03-31T21:03:01.129Z\nblocker_discovered: false\n---\n\n# T01: Replaced emoji card faces with illustrated WebP animal images.\n\n**Replaced emoji card faces with illustrated WebP animal images.**\n\n## What Happened\n\nReplaced emoji card pool with structured animal objects containing id and image path. Updated card rendering to use <img> tags loading WebP illustrations. Updated CSS for image-based card faces with proper sizing and padding. Updated match logic to compare animalId instead of emoji.\n\n## Verification\n\nCards show illustrated animals in browser. Both difficulty levels work. Images load correctly from WebP files.\n\n## Verification Evidence\n\n| # | Command | Exit Code | Verdict | Duration |\n|---|---------|-----------|---------|----------|\n| 1 | `browser verification at localhost:8080` | 0 | ✅ pass — illustrated cards display correctly | 5000ms |\n\n\n## Deviations\n\nNone.\n\n## Known Issues\n\nNone.\n\n## Files Created/Modified\n\n- `game.js`\n- `style.css`\n",
+      "description": "Replace emoji card faces with <img> tags loading WebP animal illustrations. Update card rendering in game.js to use image paths instead of emoji text. Update CSS for image-based card faces (object-fit, sizing). Verify cards display correctly at both difficulty levels.",
+      "estimate": "15min",
+      "files": [
+        "game.js",
+        "style.css",
+        "index.html"
+      ],
+      "verify": "Serve locally, play a round — cards show animal illustrations instead of emoji at both difficulty levels",
+      "inputs": [
+        "assets/animals/*.webp"
+      ],
+      "expected_output": [
+        "Updated game.js with image-based card rendering",
+        "Updated style.css for image cards",
+        "Cards show illustrations instead of emoji"
+      ],
+      "observability_impact": "",
+      "full_plan_md": "",
+      "sequence": 0
+    },
+    {
+      "milestone_id": "M001",
+      "slice_id": "S02",
+      "id": "T02",
+      "title": "Added post-reveal card shuffle — cards animate to new positions after the peek phase.",
+      "status": "complete",
+      "one_liner": "Added post-reveal card shuffle — cards animate to new positions after the peek phase.",
+      "narrative": "Implemented post-reveal shuffle using the FLIP animation technique. After cards are revealed for 2 seconds and flipped back, the DOM order is randomized with a Fisher-Yates shuffle that guarantees no card stays in its original position. Each card animates smoothly from its old position to its new one using CSS transforms with spring easing. Added a cascading shuffle sound effect.",
+      "verification_result": "Started game in browser — cards deal in, reveal faces, flip back, then smoothly shuffle to new positions. No card stays in its original spot.",
+      "duration": "",
+      "completed_at": "2026-03-31T21:03:16.347Z",
+      "blocker_discovered": false,
+      "deviations": "None.",
+      "known_issues": "None.",
+      "key_files": [
+        "game.js"
+      ],
+      "key_decisions": [
+        "FLIP animation technique: record rects before DOM reorder, apply inverse transform, animate to zero",
+        "Fisher-Yates shuffle with guarantee no card stays in same slot",
+        "Shuffle happens at 3400ms (after flip-back completes at ~3200ms)",
+        "Added playShuffleSound() — cascading descending pops"
+      ],
+      "full_summary_md": "---\nid: T02\nparent: S02\nmilestone: M001\nkey_files:\n  - game.js\nkey_decisions:\n  - FLIP animation technique: record rects before DOM reorder, apply inverse transform, animate to zero\n  - Fisher-Yates shuffle with guarantee no card stays in same slot\n  - Shuffle happens at 3400ms (after flip-back completes at ~3200ms)\n  - Added playShuffleSound() — cascading descending pops\nduration: \"\"\nverification_result: passed\ncompleted_at: 2026-03-31T21:03:16.347Z\nblocker_discovered: false\n---\n\n# T02: Added post-reveal card shuffle — cards animate to new positions after the peek phase.\n\n**Added post-reveal card shuffle — cards animate to new positions after the peek phase.**\n\n## What Happened\n\nImplemented post-reveal shuffle using the FLIP animation technique. After cards are revealed for 2 seconds and flipped back, the DOM order is randomized with a Fisher-Yates shuffle that guarantees no card stays in its original position. Each card animates smoothly from its old position to its new one using CSS transforms with spring easing. Added a cascading shuffle sound effect.\n\n## Verification\n\nStarted game in browser — cards deal in, reveal faces, flip back, then smoothly shuffle to new positions. No card stays in its original spot.\n\n## Verification Evidence\n\n| # | Command | Exit Code | Verdict | Duration |\n|---|---------|-----------|---------|----------|\n| 1 | `browser verification of shuffle at localhost:8080` | 0 | ✅ pass — cards shuffle to new positions after reveal | 5000ms |\n\n\n## Deviations\n\nNone.\n\n## Known Issues\n\nNone.\n\n## Files Created/Modified\n\n- `game.js`\n",
+      "description": "After the 2-second reveal, animate cards to new randomized positions before unlocking interaction. Implement by re-shuffling the card data array and re-rendering (or DOM-reordering with CSS transitions). Cards should slide smoothly to their new spots. The shuffle must actually change positions — no card stays in place.",
+      "estimate": "15min",
+      "files": [
+        "game.js",
+        "style.css"
+      ],
+      "verify": "Start a game — cards reveal, then visibly shuffle to new positions. No card stays in the same spot.",
+      "inputs": [
+        "Current revealAllBriefly() function"
+      ],
+      "expected_output": [
+        "Post-reveal shuffle animation in game.js",
+        "CSS transition for card position changes"
+      ],
+      "observability_impact": "",
+      "full_plan_md": "",
+      "sequence": 0
+    },
+    {
+      "milestone_id": "M001",
+      "slice_id": "S02",
+      "id": "T03",
+      "title": "Polished all animations — springy flips, bouncy matches, organic wobbles, smooth screen transitions.",
+      "status": "complete",
+      "one_liner": "Polished all animations — springy flips, bouncy matches, organic wobbles, smooth screen transitions.",
+      "narrative": "Refined all CSS animations: card flip now uses spring easing with overshoot, match animation has a 7-step damped bounce with green glow plus outer glow shadow, mismatch shake includes subtle rotation for organic wobble, screen transitions use scale+translate for entrances and scale+fade for exits, card backs show press feedback on :active.",
+      "verification_result": "Full playthrough confirms springy flip, match celebration with green glow, mismatch wobble, and smooth screen transitions.",
+      "duration": "",
+      "completed_at": "2026-03-31T21:03:30.086Z",
+      "blocker_discovered": false,
+      "deviations": "None.",
+      "known_issues": "None.",
+      "key_files": [
+        "style.css"
+      ],
+      "key_decisions": [
+        "Card flip uses cubic-bezier(0.175, 0.885, 0.32, 1.275) for spring overshoot",
+        "Match animation: 7-step bounce keyframes with green glow and double shadow",
+        "Mismatch: damped oscillation with rotation for organic wobble feel",
+        "Screen transitions: screenIn scales up with slight Y offset, screenOut scales and fades",
+        "Card back gets scale(0.97) on :active for press feedback"
+      ],
+      "full_summary_md": "---\nid: T03\nparent: S02\nmilestone: M001\nkey_files:\n  - style.css\nkey_decisions:\n  - Card flip uses cubic-bezier(0.175, 0.885, 0.32, 1.275) for spring overshoot\n  - Match animation: 7-step bounce keyframes with green glow and double shadow\n  - Mismatch: damped oscillation with rotation for organic wobble feel\n  - Screen transitions: screenIn scales up with slight Y offset, screenOut scales and fades\n  - Card back gets scale(0.97) on :active for press feedback\nduration: \"\"\nverification_result: passed\ncompleted_at: 2026-03-31T21:03:30.087Z\nblocker_discovered: false\n---\n\n# T03: Polished all animations — springy flips, bouncy matches, organic wobbles, smooth screen transitions.\n\n**Polished all animations — springy flips, bouncy matches, organic wobbles, smooth screen transitions.**\n\n## What Happened\n\nRefined all CSS animations: card flip now uses spring easing with overshoot, match animation has a 7-step damped bounce with green glow plus outer glow shadow, mismatch shake includes subtle rotation for organic wobble, screen transitions use scale+translate for entrances and scale+fade for exits, card backs show press feedback on :active.\n\n## Verification\n\nFull playthrough confirms springy flip, match celebration with green glow, mismatch wobble, and smooth screen transitions.\n\n## Verification Evidence\n\n| # | Command | Exit Code | Verdict | Duration |\n|---|---------|-----------|---------|----------|\n| 1 | `browser visual verification` | 0 | ✅ pass — all animations polished and working | 5000ms |\n\n\n## Deviations\n\nNone.\n\n## Known Issues\n\nNone.\n\n## Files Created/Modified\n\n- `style.css`\n",
+      "description": "Upgrade card flip to use spring-physics easing (cubic-bezier overshoot). Add match celebration: scale pulse + green glow + subtle particle effect. Improve mismatch: satisfying wobble with color flash. Refine deal-in stagger timing. Add screen transition animations (crossfade/slide between start, game, win screens). Animate stars individually on earn.",
+      "estimate": "20min",
+      "files": [
+        "style.css",
+        "game.js"
+      ],
+      "verify": "Play full game — flip feels springy, matches celebrate, mismatches wobble, screens transition smoothly, stars pop on earn",
+      "inputs": [
+        "Current animation CSS"
+      ],
+      "expected_output": [
+        "Refined CSS animations for all interactions",
+        "Screen transition animations",
+        "Star earn animation"
+      ],
+      "observability_impact": "",
+      "full_plan_md": "",
+      "sequence": 0
+    },
+    {
+      "milestone_id": "M001",
+      "slice_id": "S02",
+      "id": "T04",
+      "title": "Full integration verification passed — no errors, all features working.",
+      "status": "complete",
+      "one_liner": "Full integration verification passed — no errors, all features working.",
+      "narrative": "Served game at localhost:8080 and ran full integration verification. No console errors, no failed network requests, board visible. Illustrated cards display correctly, reveal+shuffle sequence works, match/mismatch animations fire, screen transitions are smooth. Both portrait and landscape grids render correctly.",
+      "verification_result": "browser_assert: no console errors, no failed requests, board visible. Visual verification of illustrated cards, shuffle, match/mismatch animations, screen transitions.",
+      "duration": "",
+      "completed_at": "2026-03-31T21:03:45.957Z",
+      "blocker_discovered": false,
+      "deviations": "None.",
+      "known_issues": "None.",
+      "key_files": [],
+      "key_decisions": [],
+      "full_summary_md": "---\nid: T04\nparent: S02\nmilestone: M001\nkey_files:\n  - (none)\nkey_decisions:\n  - (none)\nduration: \"\"\nverification_result: passed\ncompleted_at: 2026-03-31T21:03:45.957Z\nblocker_discovered: false\n---\n\n# T04: Full integration verification passed — no errors, all features working.\n\n**Full integration verification passed — no errors, all features working.**\n\n## What Happened\n\nServed game at localhost:8080 and ran full integration verification. No console errors, no failed network requests, board visible. Illustrated cards display correctly, reveal+shuffle sequence works, match/mismatch animations fire, screen transitions are smooth. Both portrait and landscape grids render correctly.\n\n## Verification\n\nbrowser_assert: no console errors, no failed requests, board visible. Visual verification of illustrated cards, shuffle, match/mismatch animations, screen transitions.\n\n## Verification Evidence\n\n| # | Command | Exit Code | Verdict | Duration |\n|---|---------|-----------|---------|----------|\n| 1 | `browser_assert: no_console_errors, no_failed_requests, selector_visible #board` | 0 | ✅ pass — 3/3 checks passed | 500ms |\n\n\n## Deviations\n\nNone.\n\n## Known Issues\n\nNone.\n\n## Files Created/Modified\n\nNone.\n",
+      "description": "Serve the game locally, play through both difficulty levels. Check for animation smoothness, correct card images, shuffle behavior, and no console errors. Verify on both portrait and landscape orientations.",
+      "estimate": "5min",
+      "files": [],
+      "verify": "Full playthrough at both difficulties, no console errors, animations smooth, shuffle works correctly",
+      "inputs": [
+        "All changes from T01-T03"
+      ],
+      "expected_output": [
+        "Browser verification report"
+      ],
+      "observability_impact": "",
+      "full_plan_md": "",
+      "sequence": 0
+    },
+    {
+      "milestone_id": "M001",
+      "slice_id": "S03",
+      "id": "T01",
+      "title": "Built CSS theme system with custom properties — two complete themes with generated art assets.",
+      "status": "complete",
+      "one_liner": "Built CSS theme system with custom properties — two complete themes with generated art assets.",
+      "narrative": "Refactored CSS to use custom properties for all theme-variable values: background images, card back images, accent colors, button colors, floating shapes. Created two complete theme rulesets — default (purple/magical with bubble background) and jungle (green/tropical with leaf card backs and kawaii jungle background). Card backs now use the generated WebP pattern images instead of the old CSS gradient with paw emoji.",
+      "verification_result": "Both themes verified visually in browser — backgrounds, card backs, buttons, and accents all respond to data-theme attribute.",
+      "duration": "",
+      "completed_at": "2026-03-31T21:08:41.460Z",
+      "blocker_discovered": false,
+      "deviations": "None.",
+      "known_issues": "None.",
+      "key_files": [
+        "style.css"
+      ],
+      "key_decisions": [
+        "Theme-variable CSS properties: --bg-image, --card-back-image, --card-back-color, --accent, --btn-secondary, --float-shape-color",
+        "Jungle overrides via [data-theme='jungle'] selector on html element",
+        "Card backs now use background-image from themed WebP asset instead of CSS gradient pattern",
+        "Removed paw emoji overlay from card backs in favor of illustrated pattern"
+      ],
+      "full_summary_md": "---\nid: T01\nparent: S03\nmilestone: M001\nkey_files:\n  - style.css\nkey_decisions:\n  - Theme-variable CSS properties: --bg-image, --card-back-image, --card-back-color, --accent, --btn-secondary, --float-shape-color\n  - Jungle overrides via [data-theme='jungle'] selector on html element\n  - Card backs now use background-image from themed WebP asset instead of CSS gradient pattern\n  - Removed paw emoji overlay from card backs in favor of illustrated pattern\nduration: \"\"\nverification_result: passed\ncompleted_at: 2026-03-31T21:08:41.461Z\nblocker_discovered: false\n---\n\n# T01: Built CSS theme system with custom properties — two complete themes with generated art assets.\n\n**Built CSS theme system with custom properties — two complete themes with generated art assets.**\n\n## What Happened\n\nRefactored CSS to use custom properties for all theme-variable values: background images, card back images, accent colors, button colors, floating shapes. Created two complete theme rulesets — default (purple/magical with bubble background) and jungle (green/tropical with leaf card backs and kawaii jungle background). Card backs now use the generated WebP pattern images instead of the old CSS gradient with paw emoji.\n\n## Verification\n\nBoth themes verified visually in browser — backgrounds, card backs, buttons, and accents all respond to data-theme attribute.\n\n## Verification Evidence\n\n| # | Command | Exit Code | Verdict | Duration |\n|---|---------|-----------|---------|----------|\n| 1 | `browser visual verification of both themes` | 0 | ✅ pass | 3000ms |\n\n\n## Deviations\n\nNone.\n\n## Known Issues\n\nNone.\n\n## Files Created/Modified\n\n- `style.css`\n",
+      "description": "1. Add CSS custom properties for all theme-variable colors (bg gradient, card back, button, accents). 2. Create [data-theme='default'] and [data-theme='jungle'] rulesets overriding those properties. 3. Add body background-image property that themes can swap. 4. Update card-back CSS to use a themed background-image instead of the hardcoded gradient pattern. 5. Ensure all existing color references use the new custom properties.",
+      "estimate": "15min",
+      "files": [
+        "style.css"
+      ],
+      "verify": "Set data-theme manually in devtools — colors, backgrounds, and card backs change per theme",
+      "inputs": [
+        "assets/themes/default/",
+        "assets/themes/jungle/"
+      ],
+      "expected_output": [
+        "style.css with theme CSS custom properties",
+        "Two complete theme rulesets"
+      ],
+      "observability_impact": "",
+      "full_plan_md": "",
+      "sequence": 0
+    },
+    {
+      "milestone_id": "M001",
+      "slice_id": "S03",
+      "id": "T02",
+      "title": "Added theme picker UI, JS switching, localStorage persistence, and asset preloading.",
+      "status": "complete",
+      "one_liner": "Added theme picker UI, JS switching, localStorage persistence, and asset preloading.",
+      "narrative": "Added theme picker UI to start screen with two color-gradient preview buttons. Theme switching JS sets data-theme on document.documentElement and saves to localStorage. initTheme() loads saved preference on page load. preloadThemeAssets() preloads all theme WebPs at startup to prevent flash on switch.",
+      "verification_result": "Switched to jungle theme, reloaded page — jungle persisted. Switched back to default — instant, no flash. localStorage confirmed 'djurspel-theme' value.",
+      "duration": "",
+      "completed_at": "2026-03-31T21:08:54.487Z",
+      "blocker_discovered": false,
+      "deviations": "None.",
+      "known_issues": "None.",
+      "key_files": [
+        "index.html",
+        "game.js"
+      ],
+      "key_decisions": [
+        "Theme picker uses colored div buttons with gradient previews",
+        "Theme stored as 'djurspel-theme' in localStorage",
+        "Default theme uses removeAttribute (no data-theme) for clean fallback",
+        "preloadThemeAssets() creates Image objects at startup for all theme WebPs"
+      ],
+      "full_summary_md": "---\nid: T02\nparent: S03\nmilestone: M001\nkey_files:\n  - index.html\n  - game.js\nkey_decisions:\n  - Theme picker uses colored div buttons with gradient previews\n  - Theme stored as 'djurspel-theme' in localStorage\n  - Default theme uses removeAttribute (no data-theme) for clean fallback\n  - preloadThemeAssets() creates Image objects at startup for all theme WebPs\nduration: \"\"\nverification_result: passed\ncompleted_at: 2026-03-31T21:08:54.487Z\nblocker_discovered: false\n---\n\n# T02: Added theme picker UI, JS switching, localStorage persistence, and asset preloading.\n\n**Added theme picker UI, JS switching, localStorage persistence, and asset preloading.**\n\n## What Happened\n\nAdded theme picker UI to start screen with two color-gradient preview buttons. Theme switching JS sets data-theme on document.documentElement and saves to localStorage. initTheme() loads saved preference on page load. preloadThemeAssets() preloads all theme WebPs at startup to prevent flash on switch.\n\n## Verification\n\nSwitched to jungle theme, reloaded page — jungle persisted. Switched back to default — instant, no flash. localStorage confirmed 'djurspel-theme' value.\n\n## Verification Evidence\n\n| # | Command | Exit Code | Verdict | Duration |\n|---|---------|-----------|---------|----------|\n| 1 | `localStorage.getItem('djurspel-theme')` | 0 | ✅ pass — returns 'jungle' | 100ms |\n| 2 | `browser reload + screenshot` | 0 | ✅ pass — theme persists, no flash | 2000ms |\n\n\n## Deviations\n\nNone.\n\n## Known Issues\n\nNone.\n\n## Files Created/Modified\n\n- `index.html`\n- `game.js`\n",
+      "description": "1. Add theme picker UI to start screen (two tappable theme preview buttons). 2. Write JS to toggle data-theme on document body. 3. Save theme choice to localStorage. 4. Load saved theme on page load. 5. Swap card-back image src when theme changes during gameplay (if cards are on screen). 6. Preload theme background images on startup to prevent flash.",
+      "estimate": "15min",
+      "files": [
+        "index.html",
+        "game.js"
+      ],
+      "verify": "Select jungle theme, reload page — jungle theme persists. Switch back — instant, no flash.",
+      "inputs": [
+        "CSS theme system from T01"
+      ],
+      "expected_output": [
+        "Theme picker HTML in index.html",
+        "Theme switching JS in game.js",
+        "localStorage persistence"
+      ],
+      "observability_impact": "",
+      "full_plan_md": "",
+      "sequence": 0
+    },
+    {
+      "milestone_id": "M001",
+      "slice_id": "S03",
+      "id": "T03",
+      "title": "Integration verification passed — both themes work correctly with persistence.",
+      "status": "complete",
+      "one_liner": "Integration verification passed — both themes work correctly with persistence.",
+      "narrative": "Full integration verification: both themes tested at easy difficulty. Jungle theme has correct background, leaf card backs, orange buttons. Default theme has bubble background, paw-print card backs, red/green buttons. Theme persists across reloads. No console errors, no failed requests.",
+      "verification_result": "browser_assert: no console errors, no failed requests. Both themes verified visually. localStorage persistence confirmed.",
+      "duration": "",
+      "completed_at": "2026-03-31T21:09:05.844Z",
+      "blocker_discovered": false,
+      "deviations": "None.",
+      "known_issues": "None.",
+      "key_files": [],
+      "key_decisions": [],
+      "full_summary_md": "---\nid: T03\nparent: S03\nmilestone: M001\nkey_files:\n  - (none)\nkey_decisions:\n  - (none)\nduration: \"\"\nverification_result: passed\ncompleted_at: 2026-03-31T21:09:05.845Z\nblocker_discovered: false\n---\n\n# T03: Integration verification passed — both themes work correctly with persistence.\n\n**Integration verification passed — both themes work correctly with persistence.**\n\n## What Happened\n\nFull integration verification: both themes tested at easy difficulty. Jungle theme has correct background, leaf card backs, orange buttons. Default theme has bubble background, paw-print card backs, red/green buttons. Theme persists across reloads. No console errors, no failed requests.\n\n## Verification\n\nbrowser_assert: no console errors, no failed requests. Both themes verified visually. localStorage persistence confirmed.\n\n## Verification Evidence\n\n| # | Command | Exit Code | Verdict | Duration |\n|---|---------|-----------|---------|----------|\n| 1 | `browser_assert: no_console_errors, no_failed_requests` | 0 | ✅ pass — 2/2 checks passed | 500ms |\n\n\n## Deviations\n\nNone.\n\n## Known Issues\n\nNone.\n\n## Files Created/Modified\n\nNone.\n",
+      "description": "Serve locally, test both themes × both difficulties. Verify backgrounds, card backs, button colors, star bar, win screen all respond to theme. Check localStorage. Check no console errors. Check no flash of wrong theme on reload.",
+      "estimate": "5min",
+      "files": [],
+      "verify": "Full playthrough on each theme, localStorage check, no console errors, no flash",
+      "inputs": [
+        "All changes from T01-T02"
+      ],
+      "expected_output": [
+        "Browser verification report"
+      ],
+      "observability_impact": "",
+      "full_plan_md": "",
+      "sequence": 0
+    }
+  ],
+  "decisions": [
+    {
+      "seq": 1,
+      "id": "D001",
+      "when_context": "",
+      "scope": "tooling",
+      "decision": "How to generate game assets (images and audio)",
+      "choice": "Imagen 4 Fast API for image generation ($0.02/image), Web Audio synthesis for SFX, with generate-image.js utility script in tools/",
+      "rationale": "Imagen 4 Fast delivers high-quality flat illustrations at the lowest API cost. Gemini audio models are TTS-focused (speech only), not suitable for game sound effects. Web Audio synthesis is instant, zero-download, and already proven in the existing codebase. The utility script loads GEMINI_API_KEY from .env.",
+      "revisable": "Yes",
+      "made_by": "collaborative",
+      "superseded_by": null
+    }
+  ],
+  "verification_evidence": [
+    {
+      "id": 1,
+      "task_id": "T01",
+      "slice_id": "S01",
+      "milestone_id": "M001",
+      "command": "node tools/generate-image.js (cat, fox, dino)",
+      "exit_code": 0,
+      "verdict": "✅ pass — all 3 images consistent style",
+      "duration_ms": 6400,
+      "created_at": "2026-03-31T20:39:31.478Z"
+    },
+    {
+      "id": 2,
+      "task_id": "T02",
+      "slice_id": "S01",
+      "milestone_id": "M001",
+      "command": "ls assets/animals/*.png | wc -l",
+      "exit_code": 0,
+      "verdict": "✅ pass — 16 files present",
+      "duration_ms": 50,
+      "created_at": "2026-03-31T20:42:34.921Z"
+    },
+    {
+      "id": 3,
+      "task_id": "T02",
+      "slice_id": "S01",
+      "milestone_id": "M001",
+      "command": "Visual inspection of 5 samples",
+      "exit_code": 0,
+      "verdict": "✅ pass — consistent style",
+      "duration_ms": 5000,
+      "created_at": "2026-03-31T20:42:34.921Z"
+    },
+    {
+      "id": 4,
+      "task_id": "T03",
+      "slice_id": "S01",
+      "milestone_id": "M001",
+      "command": "ls assets/themes/*/",
+      "exit_code": 0,
+      "verdict": "✅ pass — 4 theme assets present",
+      "duration_ms": 50,
+      "created_at": "2026-03-31T20:55:11.175Z"
+    },
+    {
+      "id": 5,
+      "task_id": "T04",
+      "slice_id": "S01",
+      "milestone_id": "M001",
+      "command": "find assets -name '*.webp' | wc -l",
+      "exit_code": 0,
+      "verdict": "✅ pass — 20 files",
+      "duration_ms": 30,
+      "created_at": "2026-03-31T20:56:33.256Z"
+    },
+    {
+      "id": 6,
+      "task_id": "T04",
+      "slice_id": "S01",
+      "milestone_id": "M001",
+      "command": "total size calculation",
+      "exit_code": 0,
+      "verdict": "✅ pass — 232KB < 1.5MB budget",
+      "duration_ms": 50,
+      "created_at": "2026-03-31T20:56:33.256Z"
+    },
+    {
+      "id": 7,
+      "task_id": "T01",
+      "slice_id": "S02",
+      "milestone_id": "M001",
+      "command": "browser verification at localhost:8080",
+      "exit_code": 0,
+      "verdict": "✅ pass — illustrated cards display correctly",
+      "duration_ms": 5000,
+      "created_at": "2026-03-31T21:03:01.127Z"
+    },
+    {
+      "id": 8,
+      "task_id": "T02",
+      "slice_id": "S02",
+      "milestone_id": "M001",
+      "command": "browser verification of shuffle at localhost:8080",
+      "exit_code": 0,
+      "verdict": "✅ pass — cards shuffle to new positions after reveal",
+      "duration_ms": 5000,
+      "created_at": "2026-03-31T21:03:16.347Z"
+    },
+    {
+      "id": 9,
+      "task_id": "T03",
+      "slice_id": "S02",
+      "milestone_id": "M001",
+      "command": "browser visual verification",
+      "exit_code": 0,
+      "verdict": "✅ pass — all animations polished and working",
+      "duration_ms": 5000,
+      "created_at": "2026-03-31T21:03:30.086Z"
+    },
+    {
+      "id": 10,
+      "task_id": "T04",
+      "slice_id": "S02",
+      "milestone_id": "M001",
+      "command": "browser_assert: no_console_errors, no_failed_requests, selector_visible #board",
+      "exit_code": 0,
+      "verdict": "✅ pass — 3/3 checks passed",
+      "duration_ms": 500,
+      "created_at": "2026-03-31T21:03:45.957Z"
+    },
+    {
+      "id": 11,
+      "task_id": "T01",
+      "slice_id": "S03",
+      "milestone_id": "M001",
+      "command": "browser visual verification of both themes",
+      "exit_code": 0,
+      "verdict": "✅ pass",
+      "duration_ms": 3000,
+      "created_at": "2026-03-31T21:08:41.460Z"
+    },
+    {
+      "id": 12,
+      "task_id": "T02",
+      "slice_id": "S03",
+      "milestone_id": "M001",
+      "command": "localStorage.getItem('djurspel-theme')",
+      "exit_code": 0,
+      "verdict": "✅ pass — returns 'jungle'",
+      "duration_ms": 100,
+      "created_at": "2026-03-31T21:08:54.487Z"
+    },
+    {
+      "id": 13,
+      "task_id": "T02",
+      "slice_id": "S03",
+      "milestone_id": "M001",
+      "command": "browser reload + screenshot",
+      "exit_code": 0,
+      "verdict": "✅ pass — theme persists, no flash",
+      "duration_ms": 2000,
+      "created_at": "2026-03-31T21:08:54.487Z"
+    },
+    {
+      "id": 14,
+      "task_id": "T03",
+      "slice_id": "S03",
+      "milestone_id": "M001",
+      "command": "browser_assert: no_console_errors, no_failed_requests",
+      "exit_code": 0,
+      "verdict": "✅ pass — 2/2 checks passed",
+      "duration_ms": 500,
+      "created_at": "2026-03-31T21:09:05.845Z"
+    }
+  ]
+}
