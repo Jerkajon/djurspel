@@ -37,6 +37,7 @@
         <div class="theme-picker">
           <div class="theme-btn theme-btn-default active" data-theme="default" onclick="setTheme('default')" title="Magi"></div>
           <div class="theme-btn theme-btn-jungle" data-theme="jungle" onclick="setTheme('jungle')" title="Djungel"></div>
+          <button class="mute-btn" onclick="toggleMute()" title="Ljud">🔊</button>
         </div>
       </div>
     </div>
@@ -44,7 +45,10 @@
     <div id="game-screen" class="screen">
       <div id="score-bar">
         <div id="stars"></div>
-        <button class="btn btn-small" onclick="showStartScreen()">↩️</button>
+        <div id="score-bar-right">
+          <button class="mute-btn" onclick="toggleMute()" title="Ljud">🔊</button>
+          <button class="btn btn-small" onclick="showStartScreen()">↩️</button>
+        </div>
       </div>
       <div id="board"></div>
     </div>

@@ -88,8 +88,33 @@ const confettiCanvas = document.getElementById('confetti-canvas');
 
 // ===== AUDIO ENGINE =====
 let audioCtx = null;
+let isMuted = false;
+
+function initMute() {
+  const saved = localStorage.getItem('djurspel-muted');
+  isMuted = saved === 'true';
+  updateMuteButtons();
+}
+
+function toggleMute() {
+  isMuted = !isMuted;
+  localStorage.setItem('djurspel-muted', isMuted);
+  if (isMuted && audioCtx) {
+    audioCtx.suspend();
+  } else if (!isMuted && audioCtx) {
+    audioCtx.resume();
+  }
+  updateMuteButtons();
+}
+
+function updateMuteButtons() {
+  document.querySelectorAll('.mute-btn').forEach(btn => {
+    btn.textContent = isMuted ? '🔇' : '🔊';
+  });
+}
 
 function ensureAudio() {
+  if (isMuted) return;
   if (!audioCtx) {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
@@ -99,7 +124,7 @@ function ensureAudio() {
 }
 
 function playTone(freq, duration, type = 'sine', vol = 0.3) {
-  if (!audioCtx) return;
+  if (!audioCtx || isMuted) return;
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
   osc.type = type;
@@ -112,53 +137,103 @@ function playTone(freq, duration, type = 'sine', vol = 0.3) {
   osc.stop(audioCtx.currentTime + duration);
 }
 
+// --- No ambient pad — just a start jingle ---
+function startAmbient() {
+  // Replaced by playStartJingle — no looping background sound
+}
+
+function stopAmbient() {
+  // No-op — nothing to stop
+}
+
+function playStartJingle() {
+  if (!audioCtx || isMuted) return;
+  // Cheerful ascending 5-note jingle: C-E-G-C'-E' over ~600ms
+  const jingle = [
+    [523, 0.12, 0],     // C5
+    [659, 0.12, 100],   // E5
+    [784, 0.12, 200],   // G5
+    [1047, 0.15, 310],  // C6
+    [1319, 0.25, 430],  // E6
+  ];
+  jingle.forEach(([freq, dur, delay]) => {
+    setTimeout(() => playTone(freq, dur, 'sine', 0.18), delay);
+  });
+  // Soft shimmer finish
+  setTimeout(() => {
+    playTone(2093, 0.4, 'sine', 0.05);
+    playTone(2637, 0.5, 'sine', 0.03);
+  }, 550);
+}
+
+// --- SFX ---
 function playFlipSound() {
-  if (!audioCtx) return;
-  playTone(600, 0.08, 'sine', 0.2);
-  setTimeout(() => playTone(900, 0.06, 'sine', 0.15), 30);
+  if (!audioCtx || isMuted) return;
+  // Layered pop: click transient + rising tone
+  playTone(1200, 0.03, 'square', 0.08);  // click
+  playTone(600, 0.08, 'sine', 0.18);
+  setTimeout(() => playTone(900, 0.06, 'sine', 0.12), 30);
 }
 
 function playMatchSound() {
-  if (!audioCtx) return;
-  playTone(523, 0.15, 'sine', 0.25);
-  setTimeout(() => playTone(659, 0.15, 'sine', 0.25), 100);
-  setTimeout(() => playTone(784, 0.25, 'sine', 0.3), 200);
+  if (!audioCtx || isMuted) return;
+  // Happy ascending chime with shimmer
+  playTone(523, 0.15, 'sine', 0.22);   // C5
+  setTimeout(() => playTone(659, 0.15, 'sine', 0.22), 100);  // E5
+  setTimeout(() => playTone(784, 0.25, 'sine', 0.25), 200);  // G5
+  // Shimmer overtones
+  setTimeout(() => {
+    playTone(1568, 0.4, 'sine', 0.06);  // G6
+    playTone(2093, 0.5, 'sine', 0.04);  // C7
+  }, 300);
 }
 
 function playMismatchSound() {
-  if (!audioCtx) return;
-  playTone(280, 0.15, 'triangle', 0.15);
-  setTimeout(() => playTone(220, 0.2, 'triangle', 0.12), 120);
+  if (!audioCtx || isMuted) return;
+  // Gentle detuned boop — not scary
+  playTone(280, 0.15, 'triangle', 0.12);
+  playTone(277, 0.15, 'triangle', 0.08); // slight detune
+  setTimeout(() => playTone(220, 0.2, 'triangle', 0.10), 120);
 }
 
 function playWinSound() {
-  if (!audioCtx) return;
+  if (!audioCtx || isMuted) return;
+  // Extended fanfare with sparkle tail
   const notes = [
     [523, 0.18, 0], [587, 0.18, 120], [659, 0.18, 240],
-    [784, 0.18, 360], [1047, 0.35, 480],
+    [784, 0.18, 360], [1047, 0.4, 480],
   ];
   notes.forEach(([freq, dur, delay]) => {
-    setTimeout(() => playTone(freq, dur, 'sine', 0.25), delay);
+    setTimeout(() => playTone(freq, dur, 'sine', 0.22), delay);
   });
+  // Sparkle tail
   setTimeout(() => {
-    playTone(1568, 0.3, 'sine', 0.1);
-    playTone(2093, 0.4, 'sine', 0.08);
+    playTone(1568, 0.4, 'sine', 0.08);
+    playTone(2093, 0.5, 'sine', 0.06);
+    playTone(2637, 0.6, 'sine', 0.04);
   }, 600);
+  // Final shimmer
+  setTimeout(() => {
+    playTone(3136, 0.8, 'sine', 0.03);
+    playTone(2093, 0.6, 'sine', 0.04);
+  }, 900);
 }
 
-function playStartSound() {
-  if (!audioCtx) return;
-  playTone(440, 0.1, 'sine', 0.2);
-  setTimeout(() => playTone(660, 0.12, 'sine', 0.25), 80);
-}
+// playStartSound replaced by playStartJingle above
 
 function playShuffleSound() {
-  if (!audioCtx) return;
-  // Quick cascading shuffle — descending pops
-  for (let i = 0; i < 5; i++) {
-    setTimeout(() => playTone(500 - i * 40, 0.06, 'sine', 0.12), i * 50);
+  if (!audioCtx || isMuted) return;
+  // Whooshy cascading pops
+  for (let i = 0; i < 6; i++) {
+    setTimeout(() => {
+      playTone(500 - i * 35, 0.05, 'sine', 0.10);
+      if (i % 2 === 0) playTone(800 - i * 50, 0.03, 'square', 0.03); // click texture
+    }, i * 45);
   }
 }
+
+// Initialize mute state
+initMute();
 
 // ===== SCREENS =====
 function showScreen(screen) {
@@ -172,13 +247,14 @@ function showScreen(screen) {
 }
 
 function showStartScreen() {
+  stopAmbient();
   showScreen(startScreen);
 }
 
 // ===== GAME SETUP =====
 function startGame(pairs) {
   ensureAudio();
-  playStartSound();
+  playStartJingle();
 
   totalPairs = pairs;
   matchedPairs = 0;
@@ -408,6 +484,7 @@ function winGame() {
   winStars.textContent = html;
 
   showScreen(winScreen);
+  stopAmbient();
   playWinSound();
   launchConfetti();
 }

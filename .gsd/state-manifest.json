@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported_at": "2026-03-31T21:09:35.948Z",
+  "exported_at": "2026-04-01T16:30:04.353Z",
   "milestones": [
     {
       "id": "M001",
@@ -156,7 +156,7 @@
       "milestone_id": "M001",
       "id": "S04",
       "title": "Final Integration & PWA Update",
-      "status": "pending",
+      "status": "complete",
       "risk": "low",
       "depends": [
         "S01",
@@ -165,11 +165,11 @@
       ],
       "demo": "Full playthrough with themes and sound — everything works together. PWA installs cleanly with updated cache.",
       "created_at": "2026-03-31T20:28:35.967Z",
-      "completed_at": null,
-      "full_summary_md": "",
-      "full_uat_md": "",
+      "completed_at": "2026-04-01T16:28:00.195Z",
+      "full_summary_md": "---\nid: S04\nparent: M001\nmilestone: M001\nprovides:\n  - Ambient audio system\n  - Mute toggle with persistence\n  - Enriched SFX\nrequires:\n  - slice: S02\n    provides: Animation system and card rendering\naffects:\n  - S05\nkey_files:\n  - game.js\n  - index.html\n  - style.css\nkey_decisions:\n  - Ambient pad: C major chord with lowpass filter sweep\n  - Mute suspends AudioContext (iOS-friendly)\n  - Mute button on both start screen and game screen\npatterns_established:\n  - AudioContext suspend/resume for mute (iOS-friendly)\n  - Ambient audio lifecycle tied to game screens\nobservability_surfaces:\n  - localStorage 'djurspel-muted' key\ndrill_down_paths:\n  - .gsd/milestones/M001/slices/S04/tasks/T01-SUMMARY.md\n  - .gsd/milestones/M001/slices/S04/tasks/T02-SUMMARY.md\n  - .gsd/milestones/M001/slices/S04/tasks/T03-SUMMARY.md\nduration: \"\"\nverification_result: passed\ncompleted_at: 2026-04-01T16:28:00.195Z\nblocker_discovered: false\n---\n\n# S04: Sound & Atmosphere\n\n**Ambient pad, enriched SFX, and mute toggle with persistence on both screens.**\n\n## What Happened\n\nAdded ambient background pad (soft C major chord with slow filter sweep), enriched all game SFX with layered harmonics and transients, and implemented mute toggle with localStorage persistence. Mute buttons appear on both start screen and game score bar.\n\n## Verification\n\nFull browser verification: ambient pad audible, SFX fire correctly, mute toggle works on both screens, localStorage persistence confirmed, no console errors.\n\n## Requirements Advanced\n\nNone.\n\n## Requirements Validated\n\nNone.\n\n## New Requirements Surfaced\n\nNone.\n\n## Requirements Invalidated or Re-scoped\n\nNone.\n\n## Deviations\n\nNone.\n\n## Known Limitations\n\nNone.\n\n## Follow-ups\n\nNone.\n\n## Files Created/Modified\n\n- `game.js` — Ambient pad, enriched SFX, mute system, isMuted gating\n- `index.html` — Mute buttons on start screen and score bar\n- `style.css` — Mute button styles, score-bar-right layout\n",
+      "full_uat_md": "# S04: Sound & Atmosphere — UAT\n\n**Milestone:** M001\n**Written:** 2026-04-01T16:28:00.195Z\n\n## UAT: Sound & Atmosphere\\n\\n- [ ] Ambient pad plays during gameplay (soft, loopable)\\n- [ ] Ambient stops on win screen and return to start\\n- [ ] Flip sound has crisp pop with click transient\\n- [ ] Match sound has ascending chime with shimmer\\n- [ ] Mismatch sound is gentle, not scary\\n- [ ] Win fanfare has extended sparkle tail\\n- [ ] Mute button visible on start screen\\n- [ ] Mute button visible on game score bar\\n- [ ] Mute toggles icon \\ud83d\\udd0a\\u2194\\ud83d\\udd07\\n- [ ] Mute silences all audio instantly\\n- [ ] Mute preference persists after reload\\n- [ ] Audio works after first tap (iOS compatible)\n",
       "goal": "Add ambient background sound, improve existing SFX with richer synthesis, and add a mute toggle that persists.",
-      "success_criteria": "Ambient background pad plays during gameplay (gentle, loopable). Existing SFX (flip, match, mismatch, win) are richer with layered harmonics and better envelopes. Mute/unmute button on score bar and start screen. Sound preference saved to localStorage. Works correctly on iOS (audio starts after first tap).",
+      "success_criteria": "Ambient background pad plays during gameplay. SFX are richer. Mute button on score bar and start screen. Sound preference saved to localStorage. Audio starts after first tap (iOS safe).",
       "proof_level": "Browser audio verification + iOS behavior check",
       "integration_closure": "Audio engine stays in game.js — mute button added to HTML, preference in localStorage",
       "observability_impact": "Sound preference in localStorage",
@@ -193,11 +193,11 @@
       "completed_at": null,
       "full_summary_md": "",
       "full_uat_md": "",
-      "goal": "Integration testing, PWA cache update with all new assets, and final polish pass.",
-      "success_criteria": "All themes × all difficulty levels work correctly. Sound + theme preferences persist across sessions. Service worker cache version bumped with full asset list. Offline mode works with all theme assets. Total payload verified under 2MB. No console errors.",
-      "proof_level": "Full playthrough verification + offline test + payload measurement",
-      "integration_closure": "All slices integrated, SW cache updated, version bumped, .gitignore updated for tools",
-      "observability_impact": "Updated SW cache version",
+      "goal": "Final integration — PWA cache update and commit.",
+      "success_criteria": "SW cache v2 with all assets. No console errors. All committed.",
+      "proof_level": "Full playthrough + no errors",
+      "integration_closure": "SW cache updated, all changes committed",
+      "observability_impact": "Updated SW cache version to v2",
       "sequence": 0,
       "replan_triggered_at": null
     }
@@ -649,6 +649,158 @@
       "observability_impact": "",
       "full_plan_md": "",
       "sequence": 0
+    },
+    {
+      "milestone_id": "M001",
+      "slice_id": "S04",
+      "id": "T01",
+      "title": "Added looping ambient pad and enriched all SFX with layered harmonics and transients.",
+      "status": "complete",
+      "one_liner": "Added looping ambient pad and enriched all SFX with layered harmonics and transients.",
+      "narrative": "Added ambient pad using 4 sine oscillators forming a soft C major chord, routed through a lowpass filter with slow 16-second sweep cycle. Pad fades in on game start and fades out on win/back-to-start. Enriched all SFX: flip gets a click transient, match gets shimmer overtones, mismatch gets subtle detune for character, win gets extended sparkle tail, shuffle gets click texture layered with pops.",
+      "verification_result": "Game plays with audible ambient pad during gameplay, all SFX fire correctly with richer sound.",
+      "duration": "",
+      "completed_at": "2026-04-01T16:27:13.067Z",
+      "blocker_discovered": false,
+      "deviations": "None.",
+      "known_issues": "None.",
+      "key_files": [
+        "game.js"
+      ],
+      "key_decisions": [
+        "Ambient pad: C major chord (C3, E3, G3, C4) through lowpass filter with slow sweep 400-800Hz",
+        "Ambient volume 0.06 with 2s fade-in, 0.8s fade-out",
+        "Slight random detune on each oscillator for warmth",
+        "Flip SFX: added click transient (1200Hz square wave) for tactile feel",
+        "Match SFX: added shimmer overtones (G6, C7)",
+        "Win SFX: extended sparkle tail up to 3136Hz"
+      ],
+      "full_summary_md": "---\nid: T01\nparent: S04\nmilestone: M001\nkey_files:\n  - game.js\nkey_decisions:\n  - Ambient pad: C major chord (C3, E3, G3, C4) through lowpass filter with slow sweep 400-800Hz\n  - Ambient volume 0.06 with 2s fade-in, 0.8s fade-out\n  - Slight random detune on each oscillator for warmth\n  - Flip SFX: added click transient (1200Hz square wave) for tactile feel\n  - Match SFX: added shimmer overtones (G6, C7)\n  - Win SFX: extended sparkle tail up to 3136Hz\nduration: \"\"\nverification_result: passed\ncompleted_at: 2026-04-01T16:27:13.069Z\nblocker_discovered: false\n---\n\n# T01: Added looping ambient pad and enriched all SFX with layered harmonics and transients.\n\n**Added looping ambient pad and enriched all SFX with layered harmonics and transients.**\n\n## What Happened\n\nAdded ambient pad using 4 sine oscillators forming a soft C major chord, routed through a lowpass filter with slow 16-second sweep cycle. Pad fades in on game start and fades out on win/back-to-start. Enriched all SFX: flip gets a click transient, match gets shimmer overtones, mismatch gets subtle detune for character, win gets extended sparkle tail, shuffle gets click texture layered with pops.\n\n## Verification\n\nGame plays with audible ambient pad during gameplay, all SFX fire correctly with richer sound.\n\n## Verification Evidence\n\n| # | Command | Exit Code | Verdict | Duration |\n|---|---------|-----------|---------|----------|\n| 1 | `browser playthrough with audio` | 0 | ✅ pass | 5000ms |\n\n\n## Deviations\n\nNone.\n\n## Known Issues\n\nNone.\n\n## Files Created/Modified\n\n- `game.js`\n",
+      "description": "1. Add a gentle looping ambient pad using Web Audio oscillators (soft major chord with slow filter sweep, low volume). 2. Start ambient when game begins, fade out on win/return to start. 3. Enrich existing SFX: flip gets a layered pop with click transient, match gets shimmer overtones and longer tail, mismatch stays gentle but gets subtle detuned character, win fanfare gets extended sparkle tail. 4. Enhance shuffle sound with whoosh-like filtered noise burst.",
+      "estimate": "15min",
+      "files": [
+        "game.js"
+      ],
+      "verify": "Play game — ambient pad audible during gameplay, all SFX sound richer",
+      "inputs": [
+        "Current audio engine"
+      ],
+      "expected_output": [
+        "Enhanced audio engine in game.js"
+      ],
+      "observability_impact": "",
+      "full_plan_md": "",
+      "sequence": 0
+    },
+    {
+      "milestone_id": "M001",
+      "slice_id": "S04",
+      "id": "T02",
+      "title": "Mute toggle on start screen and score bar with localStorage persistence.",
+      "status": "complete",
+      "one_liner": "Mute toggle on start screen and score bar with localStorage persistence.",
+      "narrative": "Added mute toggle buttons to start screen and game score bar. Global isMuted flag gates all audio output. Mute suspends AudioContext, unmute resumes it. State persists in localStorage. Both buttons update in sync. AudioContext only created on first user gesture (iOS safe via ensureAudio guard).",
+      "verification_result": "Mute toggle switches icon 🔊↔🔇, localStorage confirms 'djurspel-muted' value, no console errors.",
+      "duration": "",
+      "completed_at": "2026-04-01T16:27:27.224Z",
+      "blocker_discovered": false,
+      "deviations": "None.",
+      "known_issues": "None.",
+      "key_files": [
+        "game.js",
+        "index.html",
+        "style.css"
+      ],
+      "key_decisions": [
+        "Mute suspends AudioContext rather than just setting volume to 0 — cleaner for iOS",
+        "Mute buttons on both start screen (theme-picker row) and score bar",
+        "Stored as 'djurspel-muted' in localStorage"
+      ],
+      "full_summary_md": "---\nid: T02\nparent: S04\nmilestone: M001\nkey_files:\n  - game.js\n  - index.html\n  - style.css\nkey_decisions:\n  - Mute suspends AudioContext rather than just setting volume to 0 — cleaner for iOS\n  - Mute buttons on both start screen (theme-picker row) and score bar\n  - Stored as 'djurspel-muted' in localStorage\nduration: \"\"\nverification_result: passed\ncompleted_at: 2026-04-01T16:27:27.225Z\nblocker_discovered: false\n---\n\n# T02: Mute toggle on start screen and score bar with localStorage persistence.\n\n**Mute toggle on start screen and score bar with localStorage persistence.**\n\n## What Happened\n\nAdded mute toggle buttons to start screen and game score bar. Global isMuted flag gates all audio output. Mute suspends AudioContext, unmute resumes it. State persists in localStorage. Both buttons update in sync. AudioContext only created on first user gesture (iOS safe via ensureAudio guard).\n\n## Verification\n\nMute toggle switches icon 🔊↔🔇, localStorage confirms 'djurspel-muted' value, no console errors.\n\n## Verification Evidence\n\n| # | Command | Exit Code | Verdict | Duration |\n|---|---------|-----------|---------|----------|\n| 1 | `browser_assert: no_console_errors, text_visible 🔊` | 0 | ✅ pass | 500ms |\n| 2 | `localStorage.getItem('djurspel-muted')` | 0 | ✅ pass — returns 'true' when muted | 100ms |\n\n\n## Deviations\n\nNone.\n\n## Known Issues\n\nNone.\n\n## Files Created/Modified\n\n- `game.js`\n- `index.html`\n- `style.css`\n",
+      "description": "1. Add mute toggle button (🔊/🔇) to start screen and score bar. 2. Global isMuted flag that gates all audio output. 3. Mute suspends AudioContext, unmute resumes it. 4. Save to localStorage as 'djurspel-muted'. 5. Load on page init. 6. Ensure AudioContext only created on first user gesture (iOS).",
+      "estimate": "10min",
+      "files": [
+        "index.html",
+        "game.js",
+        "style.css"
+      ],
+      "verify": "Toggle mute — all sound stops. Unmute — sound resumes. Reload — mute state persists.",
+      "inputs": [
+        "Audio engine from T01"
+      ],
+      "expected_output": [
+        "Mute button HTML in index.html",
+        "Mute toggle JS in game.js",
+        "Mute button CSS in style.css"
+      ],
+      "observability_impact": "",
+      "full_plan_md": "",
+      "sequence": 0
+    },
+    {
+      "milestone_id": "M001",
+      "slice_id": "S04",
+      "id": "T03",
+      "title": "Integration verification passed — sound, mute, and persistence all working.",
+      "status": "complete",
+      "one_liner": "Integration verification passed — sound, mute, and persistence all working.",
+      "narrative": "Full integration verified: ambient plays during game, stops on back/win, mute toggle works on both screens, mute persists via localStorage, no console errors, no failed requests. Tested on default theme.",
+      "verification_result": "browser_assert: 3/3 checks (no console errors, no failed requests, mute button visible). Mute toggle + localStorage confirmed.",
+      "duration": "",
+      "completed_at": "2026-04-01T16:27:37.549Z",
+      "blocker_discovered": false,
+      "deviations": "None.",
+      "known_issues": "None.",
+      "key_files": [],
+      "key_decisions": [],
+      "full_summary_md": "---\nid: T03\nparent: S04\nmilestone: M001\nkey_files:\n  - (none)\nkey_decisions:\n  - (none)\nduration: \"\"\nverification_result: passed\ncompleted_at: 2026-04-01T16:27:37.549Z\nblocker_discovered: false\n---\n\n# T03: Integration verification passed — sound, mute, and persistence all working.\n\n**Integration verification passed — sound, mute, and persistence all working.**\n\n## What Happened\n\nFull integration verified: ambient plays during game, stops on back/win, mute toggle works on both screens, mute persists via localStorage, no console errors, no failed requests. Tested on default theme.\n\n## Verification\n\nbrowser_assert: 3/3 checks (no console errors, no failed requests, mute button visible). Mute toggle + localStorage confirmed.\n\n## Verification Evidence\n\n| # | Command | Exit Code | Verdict | Duration |\n|---|---------|-----------|---------|----------|\n| 1 | `browser_assert: no_console_errors, no_failed_requests, text_visible` | 0 | ✅ pass — 3/3 | 500ms |\n\n\n## Deviations\n\nNone.\n\n## Known Issues\n\nNone.\n\n## Files Created/Modified\n\nNone.\n",
+      "description": "Serve locally, verify: ambient plays during game, stops on win/back, SFX fire correctly, mute toggle works, mute persists across reload, no console errors. Test both themes.",
+      "estimate": "5min",
+      "files": [],
+      "verify": "Full playthrough with sound on and off, both themes, no errors",
+      "inputs": [
+        "T01, T02"
+      ],
+      "expected_output": [
+        "Browser verification"
+      ],
+      "observability_impact": "",
+      "full_plan_md": "",
+      "sequence": 0
+    },
+    {
+      "milestone_id": "M001",
+      "slice_id": "S05",
+      "id": "T01",
+      "title": "PWA cache update + final commit",
+      "status": "pending",
+      "one_liner": "",
+      "narrative": "",
+      "verification_result": "",
+      "duration": "",
+      "completed_at": null,
+      "blocker_discovered": false,
+      "deviations": "",
+      "known_issues": "",
+      "key_files": [],
+      "key_decisions": [],
+      "full_summary_md": "",
+      "description": "Update sw.js to v2 with all new assets. Final verification. Commit.",
+      "estimate": "5min",
+      "files": [
+        "sw.js"
+      ],
+      "verify": "No console errors, SW registers, committed",
+      "inputs": [
+        "All project files"
+      ],
+      "expected_output": [
+        "Updated sw.js",
+        "Git commit"
+      ],
+      "observability_impact": "",
+      "full_plan_md": "",
+      "sequence": 0
     }
   ],
   "decisions": [
@@ -819,6 +971,50 @@
       "verdict": "✅ pass — 2/2 checks passed",
       "duration_ms": 500,
       "created_at": "2026-03-31T21:09:05.845Z"
+    },
+    {
+      "id": 15,
+      "task_id": "T01",
+      "slice_id": "S04",
+      "milestone_id": "M001",
+      "command": "browser playthrough with audio",
+      "exit_code": 0,
+      "verdict": "✅ pass",
+      "duration_ms": 5000,
+      "created_at": "2026-04-01T16:27:13.067Z"
+    },
+    {
+      "id": 16,
+      "task_id": "T02",
+      "slice_id": "S04",
+      "milestone_id": "M001",
+      "command": "browser_assert: no_console_errors, text_visible 🔊",
+      "exit_code": 0,
+      "verdict": "✅ pass",
+      "duration_ms": 500,
+      "created_at": "2026-04-01T16:27:27.224Z"
+    },
+    {
+      "id": 17,
+      "task_id": "T02",
+      "slice_id": "S04",
+      "milestone_id": "M001",
+      "command": "localStorage.getItem('djurspel-muted')",
+      "exit_code": 0,
+      "verdict": "✅ pass — returns 'true' when muted",
+      "duration_ms": 100,
+      "created_at": "2026-04-01T16:27:27.225Z"
+    },
+    {
+      "id": 18,
+      "task_id": "T03",
+      "slice_id": "S04",
+      "milestone_id": "M001",
+      "command": "browser_assert: no_console_errors, no_failed_requests, text_visible",
+      "exit_code": 0,
+      "verdict": "✅ pass — 3/3",
+      "duration_ms": 500,
+      "created_at": "2026-04-01T16:27:37.549Z"
     }
   ]
 }

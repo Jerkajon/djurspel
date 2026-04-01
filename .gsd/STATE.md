@@ -1,8 +1,8 @@
 # GSD State
 
 **Active Milestone:** M001: M001
-**Active Slice:** S04: Final Integration & PWA Update
-**Phase:** planning
+**Active Slice:** S05: Final Integration & PWA Update
+**Phase:** evaluating-gates
 **Requirements Status:** 0 active · 0 validated · 0 deferred · 0 out of scope
 
 ## Milestone Registry
@@ -15,4 +15,4 @@
 - None
 
 ## Next Action
-Slice S04 has a plan file but no tasks. Add tasks to the plan.
+Evaluate 3 quality gate(s) for S05 before execution.
