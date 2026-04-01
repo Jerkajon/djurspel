@@ -44,6 +44,41 @@ function preloadThemeAssets() {
   });
 }
 
+// ===== DANCING DINO =====
+const DINO_FRAMES = [
+  'assets/dino-dance/frame-0.webp',
+  'assets/dino-dance/frame-1.webp',
+  'assets/dino-dance/frame-2.webp',
+  'assets/dino-dance/frame-3.webp',
+  'assets/dino-dance/frame-4.webp',
+  'assets/dino-dance/frame-5.webp',
+];
+let dinoFrameIndex = 0;
+let dinoInterval = null;
+
+function startDinoDance() {
+  const sprite = document.getElementById('dino-sprite');
+  if (!sprite) return;
+  // Preload all frames
+  DINO_FRAMES.forEach(src => { const img = new Image(); img.src = src; });
+  
+  if (dinoInterval) clearInterval(dinoInterval);
+  dinoInterval = setInterval(() => {
+    dinoFrameIndex = (dinoFrameIndex + 1) % DINO_FRAMES.length;
+    sprite.src = DINO_FRAMES[dinoFrameIndex];
+  }, 500);
+}
+
+function stopDinoDance() {
+  if (dinoInterval) {
+    clearInterval(dinoInterval);
+    dinoInterval = null;
+  }
+}
+
+// Start dancing on load
+startDinoDance();
+
 // Initialize theme on load
 initTheme();
 preloadThemeAssets();

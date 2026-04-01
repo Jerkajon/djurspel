@@ -1,4 +1,4 @@
-const CACHE_NAME = 'djurspel-v2';
+const CACHE_NAME = 'djurspel-v3';
 const ASSETS = [
   '/',
   '/index.html',
@@ -27,6 +27,13 @@ const ASSETS = [
   '/assets/themes/default/card-back.webp',
   '/assets/themes/jungle/bg.webp',
   '/assets/themes/jungle/card-back.webp',
+  // Dancing dino frames
+  '/assets/dino-dance/frame-0.webp',
+  '/assets/dino-dance/frame-1.webp',
+  '/assets/dino-dance/frame-2.webp',
+  '/assets/dino-dance/frame-3.webp',
+  '/assets/dino-dance/frame-4.webp',
+  '/assets/dino-dance/frame-5.webp',
 ];
 
 // Install — cache all assets

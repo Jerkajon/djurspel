@@ -1,6 +1,6 @@
 {
-  "name": "Djurspel - Minneslek",
-  "short_name": "Djurspel",
+  "name": "Ebbes memoryspel",
+  "short_name": "Ebbes spel",
   "description": "Minneslek med djur och dinosaurier för barn",
   "start_url": "/",
   "display": "standalone",
