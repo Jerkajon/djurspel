@@ -1,14 +1,14 @@
 {
   "version": 1,
-  "exported_at": "2026-04-01T16:31:21.513Z",
+  "exported_at": "2026-04-03T08:39:25.811Z",
   "milestones": [
     {
       "id": "M001",
       "title": "",
-      "status": "queued",
+      "status": "complete",
       "depends_on": [],
       "created_at": "2026-03-26T20:23:20.756Z",
-      "completed_at": null,
+      "completed_at": "2026-04-03T08:39:25.794Z",
       "vision": "Transform the game from emoji placeholders to a fully illustrated, themed experience — AI-generated animal art, multiple visual themes with real backgrounds and card backs, richer animations, atmospheric sound, and the kind of tactile feel that makes a toddler want to keep tapping.",
       "success_criteria": [
         "All card faces show AI-generated illustrated animals instead of emoji",

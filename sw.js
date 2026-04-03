@@ -1,4 +1,4 @@
-const CACHE_NAME = 'djurspel-v3';
+const CACHE_NAME = 'djurspel-v4';
 const ASSETS = [
   '/',
   '/index.html',
@@ -34,6 +34,15 @@ const ASSETS = [
   '/assets/dino-dance/frame-3.webp',
   '/assets/dino-dance/frame-4.webp',
   '/assets/dino-dance/frame-5.webp',
+  // Dancing brachiosaurus frames
+  '/assets/brachio-dance/frame-0.webp',
+  '/assets/brachio-dance/frame-1.webp',
+  '/assets/brachio-dance/frame-2.webp',
+  '/assets/brachio-dance/frame-3.webp',
+  '/assets/brachio-dance/frame-4.webp',
+  '/assets/brachio-dance/frame-5.webp',
+  // Background music
+  '/assets/music/bgm.mp3',
 ];
 
 // Install — cache all assets

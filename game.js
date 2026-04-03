@@ -44,7 +44,7 @@ function preloadThemeAssets() {
   });
 }
 
-// ===== DANCING DINO =====
+// ===== DANCING DINOS =====
 const DINO_FRAMES = [
   'assets/dino-dance/frame-0.webp',
   'assets/dino-dance/frame-1.webp',
@@ -53,19 +53,31 @@ const DINO_FRAMES = [
   'assets/dino-dance/frame-4.webp',
   'assets/dino-dance/frame-5.webp',
 ];
+const BRACHIO_FRAMES = [
+  'assets/brachio-dance/frame-0.webp',
+  'assets/brachio-dance/frame-1.webp',
+  'assets/brachio-dance/frame-2.webp',
+  'assets/brachio-dance/frame-3.webp',
+  'assets/brachio-dance/frame-4.webp',
+  'assets/brachio-dance/frame-5.webp',
+];
 let dinoFrameIndex = 0;
+let brachioFrameIndex = 0;
 let dinoInterval = null;
 
 function startDinoDance() {
-  const sprite = document.getElementById('dino-sprite');
-  if (!sprite) return;
+  const dinoSprite = document.getElementById('dino-sprite');
+  const brachioSprite = document.getElementById('brachio-sprite');
   // Preload all frames
   DINO_FRAMES.forEach(src => { const img = new Image(); img.src = src; });
+  BRACHIO_FRAMES.forEach(src => { const img = new Image(); img.src = src; });
   
   if (dinoInterval) clearInterval(dinoInterval);
   dinoInterval = setInterval(() => {
     dinoFrameIndex = (dinoFrameIndex + 1) % DINO_FRAMES.length;
-    sprite.src = DINO_FRAMES[dinoFrameIndex];
+    brachioFrameIndex = (brachioFrameIndex + 1) % BRACHIO_FRAMES.length;
+    if (dinoSprite) dinoSprite.src = DINO_FRAMES[dinoFrameIndex];
+    if (brachioSprite) brachioSprite.src = BRACHIO_FRAMES[brachioFrameIndex];
   }, 500);
 }
 
@@ -139,6 +151,12 @@ function toggleMute() {
   } else if (!isMuted && audioCtx) {
     audioCtx.resume();
   }
+  // Sync background music with mute state
+  if (isMuted && bgMusic) {
+    bgMusic.pause();
+  } else if (!isMuted && bgMusic && gameScreen.classList.contains('active')) {
+    bgMusic.play().catch(() => {});
+  }
   updateMuteButtons();
 }
 
@@ -179,6 +197,32 @@ function startAmbient() {
 
 function stopAmbient() {
   // No-op — nothing to stop
+}
+
+// ===== BACKGROUND MUSIC =====
+let bgMusic = null;
+
+function initBgMusic() {
+  if (bgMusic) return;
+  bgMusic = new Audio('assets/music/bgm.mp3');
+  bgMusic.loop = true;
+  bgMusic.volume = 0.3;
+  bgMusic.preload = 'auto';
+}
+
+function playBgMusic() {
+  if (isMuted) return;
+  initBgMusic();
+  if (bgMusic.paused) {
+    bgMusic.play().catch(() => {});
+  }
+}
+
+function stopBgMusic() {
+  if (bgMusic && !bgMusic.paused) {
+    bgMusic.pause();
+    bgMusic.currentTime = 0;
+  }
 }
 
 function playStartJingle() {
@@ -283,6 +327,7 @@ function showScreen(screen) {
 
 function showStartScreen() {
   stopAmbient();
+  stopBgMusic();
   showScreen(startScreen);
 }
 
@@ -290,6 +335,7 @@ function showStartScreen() {
 function startGame(pairs) {
   ensureAudio();
   playStartJingle();
+  playBgMusic();
 
   totalPairs = pairs;
   matchedPairs = 0;
@@ -520,6 +566,7 @@ function winGame() {
 
   showScreen(winScreen);
   stopAmbient();
+  stopBgMusic();
   playWinSound();
   launchConfetti();
 }
