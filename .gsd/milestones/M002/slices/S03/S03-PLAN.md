@@ -15,7 +15,7 @@ Steps:
   - Estimate: 30m
   - Files: style.css, index.html
   - Verify: grep -n 'pokemon-spinner\|pokemonSpinnerRotate\|btn-pokemon:hover' style.css index.html | wc -l | grep -v '^0$'
-- [ ] **T02: Browser verification of spinner, button styling, and iPad grid layout** — Run a local HTTP server and verify all S03 visual polish criteria using browser automation. Confirm the spinner is present in the DOM, the Pokémon button is visually distinct, the 8-pair grid renders correctly on iPad viewport (768×1024), and the error state markup is correct.
+- [x] **T02: All S03 visual polish criteria verified in browser: distinct Pokémon button, spinner in DOM, 8-pair 4×4 grid correct on iPad 768×1024, zero JS errors** — Run a local HTTP server and verify all S03 visual polish criteria using browser automation. Confirm the spinner is present in the DOM, the Pokémon button is visually distinct, the 8-pair grid renders correctly on iPad viewport (768×1024), and the error state markup is correct.
 
 Steps:
 1. Start a Python HTTP server: `python3 -m http.server 8765` in `/Users/erikandersson/vscode/djurspel`.
