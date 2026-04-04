@@ -392,7 +392,98 @@ function startGame(pairs) {
 }
 
 // ===== POKÉMON LEVEL =====
-function startPokemonGame() {
+
+/** Build a shuffled pool of all IDs 1–151 */
+function buildPokemonPool() {
+  const pool = Array.from({ length: 151 }, (_, i) => i + 1);
+  // Fisher-Yates shuffle
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool;
+}
+
+/** Return the CDN sprite URL for a given Pokémon ID */
+function pokemonSpriteUrl(id) {
+  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+}
+
+/**
+ * Preload 8 unique Pokémon sprites with failure resilience.
+ * On load failure, replaces the failed ID with the next unused ID from the pool.
+ * Caps total attempts at MAX_ATTEMPTS to handle full network outages.
+ * Returns a Promise that resolves to an array of { id, url } objects (length 8),
+ * or rejects with an Error if the cap is reached.
+ */
+function loadPokemonSprites() {
+  const NEEDED = 8;
+  const MAX_ATTEMPTS = 25;
+  const pool = buildPokemonPool(); // shuffled 1–151
+
+  return new Promise((resolve, reject) => {
+    const loaded = [];     // { id, url } confirmed loaded
+    let attempts = 0;
+    let poolIndex = 0;
+
+    function tryNext() {
+      if (loaded.length >= NEEDED) {
+        resolve(loaded);
+        return;
+      }
+      if (attempts >= MAX_ATTEMPTS) {
+        reject(new Error(`Kunde inte ladda ${NEEDED} Pokémon-sprites efter ${MAX_ATTEMPTS} försök.`));
+        return;
+      }
+      if (poolIndex >= pool.length) {
+        // Exhausted pool (shouldn't happen for 151 IDs, but guard anyway)
+        reject(new Error('Pokémon-poolen är slut — försök igen.'));
+        return;
+      }
+
+      const id = pool[poolIndex++];
+      attempts++;
+      const url = pokemonSpriteUrl(id);
+      const img = new Image();
+
+      img.onload = () => {
+        loaded.push({ id, url });
+        tryNext();
+      };
+
+      img.onerror = () => {
+        console.warn(`[Pokémon] Sprite ${id} misslyckades (försök ${attempts}/${MAX_ATTEMPTS}), provar nästa…`);
+        tryNext();
+      };
+
+      img.src = url;
+    }
+
+    // Kick off 8 parallel loading attempts (one per needed sprite)
+    for (let i = 0; i < NEEDED && i < pool.length; i++) {
+      const id = pool[poolIndex++];
+      attempts++;
+      const url = pokemonSpriteUrl(id);
+      const img = new Image();
+
+      img.onload = () => {
+        loaded.push({ id, url });
+        if (loaded.length >= NEEDED) {
+          resolve(loaded);
+        }
+      };
+
+      img.onerror = () => {
+        console.warn(`[Pokémon] Sprite ${id} misslyckades (försök ${attempts}/${MAX_ATTEMPTS}), provar nästa…`);
+        tryNext();
+      };
+
+      img.src = url;
+    }
+  });
+}
+
+async function startPokemonGame() {
   ensureAudio();
   playStartJingle();
   playBgMusic();
@@ -400,20 +491,45 @@ function startPokemonGame() {
   totalPairs = 8;
   matchedPairs = 0;
   flippedCards = [];
-  isLocked = false;
+  isLocked = true; // locked until board is ready
 
-  // Combine all animals and dinos, shuffle, pick 8
-  const allCreatures = [...ANIMALS, ...DINOS].sort(() => Math.random() - 0.5);
-  const selected = allCreatures.slice(0, 8);
+  // Show game screen immediately with loading overlay visible
+  board.innerHTML = '';
+  board.className = 'pairs-8';
+  updateStars();
+  showScreen(gameScreen);
 
-  // Create pairs and shuffle
-  const cardData = [...selected, ...selected]
+  const loadingEl = document.getElementById('pokemon-loading');
+  if (loadingEl) loadingEl.style.display = 'flex';
+
+  let pokemonSprites;
+  try {
+    pokemonSprites = await loadPokemonSprites();
+  } catch (err) {
+    console.error('[Pokémon] Sprite-laddning misslyckades:', err);
+    if (loadingEl) {
+      loadingEl.innerHTML = '<p>❌ Kunde inte ladda Pokémon-bilder.<br>Kontrollera nätverket och försök igen.</p>';
+    }
+    return; // leave game screen visible with the error message
+  }
+
+  // Hide loading overlay
+  if (loadingEl) loadingEl.style.display = 'none';
+
+  // Build card data — each Pokémon ID appears exactly twice (one pair)
+  const cardData = [...pokemonSprites, ...pokemonSprites]
     .sort(() => Math.random() - 0.5)
-    .map((animal, i) => ({ id: i, animalId: animal.id, img: animal.img, flipped: false, matched: false }));
+    .map((pokemon, i) => ({
+      id: i,
+      animalId: pokemon.id, // numeric Pokémon ID — used by matchFound()
+      img: pokemon.url,
+      flipped: false,
+      matched: false,
+    }));
 
   cards = cardData;
 
-  // Render
+  // Render board
   board.innerHTML = '';
   board.className = 'pairs-8';
 
@@ -425,7 +541,7 @@ function startPokemonGame() {
       <div class="card-inner">
         <div class="card-face card-back"></div>
         <div class="card-face card-front">
-          <img src="${card.img}" alt="${card.animalId}" draggable="false" />
+          <img src="${card.img}" alt="Pokémon ${card.animalId}" draggable="false" />
         </div>
       </div>
     `;
@@ -438,7 +554,6 @@ function startPokemonGame() {
   });
 
   updateStars();
-  showScreen(gameScreen);
 
   // Brief reveal → shuffle → unlock
   revealThenShuffle();

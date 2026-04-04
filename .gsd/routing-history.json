@@ -11,7 +11,7 @@
         "fail": 0
       },
       "heavy": {
-        "success": 1,
+        "success": 2,
         "fail": 0
       }
     },
@@ -21,7 +21,7 @@
         "fail": 0
       },
       "standard": {
-        "success": 1,
+        "success": 2,
         "fail": 0
       },
       "heavy": {
@@ -31,5 +31,5 @@
     }
   },
   "feedback": [],
-  "updatedAt": "2026-04-04T19:00:21.533Z"
+  "updatedAt": "2026-04-04T19:06:42.768Z"
 }

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exported_at": "2026-04-04T19:00:19.172Z",
+  "exported_at": "2026-04-04T19:06:41.165Z",
   "milestones": [
     {
       "id": "M001",
@@ -258,14 +258,14 @@
       "milestone_id": "M002",
       "id": "S01",
       "title": "Pokémon button and routing",
-      "status": "pending",
+      "status": "complete",
       "risk": "low",
       "depends": [],
       "demo": "Clicking Pokémon-nivå! on start screen launches a Pokémon game with 8 pairs (placeholder animal/dino images for now, real sprites in S02)",
       "created_at": "2026-04-04T18:56:05.947Z",
-      "completed_at": null,
-      "full_summary_md": "",
-      "full_uat_md": "",
+      "completed_at": "2026-04-04T19:01:53.904Z",
+      "full_summary_md": "---\nid: S01\nparent: M002\nmilestone: M002\nprovides:\n  - startPokemonGame() function entry point for the Pokémon game flow\n  - .btn-pokemon CSS class for the golden-yellow button visual\n  - #board.pairs-8 CSS grid layout for 4×4 16-card board\n  - Deal animation delays for cards 13-16\nrequires:\n  []\naffects:\n  - S02\n  - S03\nkey_files:\n  - index.html\n  - game.js\n  - style.css\nkey_decisions:\n  - Combined all 10 ANIMALS + 6 DINOS into one 16-item pool — exactly 2× 8 pairs, so no explicit ratio logic was needed\n  - .pairs-8 portrait CSS rule placed after the landscape @media block — cascade is correct regardless since the landscape rule is inside the media query\n  - board.className assigned wholesale (not classList.add) following existing startGame() pattern — clears any prior grid class\npatterns_established:\n  - startPokemonGame() follows the same initialization pattern as startGame() — ensureAudio, playStartJingle, playBgMusic, reset state, build card data, set board.className, render, revealThenShuffle\n  - Grid class (pairs-4 / pairs-6 / pairs-8) is always assigned via board.className (replaces) not classList.add (accumulates)\nobservability_surfaces:\n  - none\ndrill_down_paths:\n  - .gsd/milestones/M002/slices/S01/tasks/T01-SUMMARY.md\nduration: \"\"\nverification_result: passed\ncompleted_at: 2026-04-04T19:01:53.904Z\nblocker_discovered: false\n---\n\n# S01: Pokémon button and routing\n\n**Added ⚡ Pokémon-nivå! button (golden-yellow styling) and startPokemonGame() launching a fully functional 4×4 8-pair memory game from the combined animal/dino pool**\n\n## What Happened\n\nS01 was a single-task slice that delivered the entire Pokémon routing feature in one coherent change across three files.\n\n**index.html:** A third start button (`.btn-pokemon`) was added between the Medel button and the `.theme-picker` div, calling `startPokemonGame()` with the ⚡ label and \"8 par\" subtitle. The existing Lätt and Medel buttons are untouched.\n\n**game.js:** `startPokemonGame()` was added following the exact same initialization pattern as `startGame()` — calls `ensureAudio()`, `playStartJingle()`, `playBgMusic()`, resets all game state (`totalPairs=8`, `matchedPairs=0`, `flippedCards=[]`, `isLocked=false`), then combines the full ANIMALS array (10 items) and DINOS array (6 items) into a 16-item pool, shuffles, takes 8, creates 16 paired card elements, sets `board.className='pairs-8'`, and runs the full `revealThenShuffle()` cycle. The combined pool of 16 items is exactly 2× the 8 needed, so no ratio enforcement was required.\n\n**style.css:** `.btn-pokemon` was styled with a golden-yellow background (`#f9ca24`), dark text (`#333`), and a darker-gold 3D shadow (`#d4a800`) matching the existing button shadow pattern. `#board.pairs-8` was added with `grid-template-columns: repeat(4,1fr)` and responsive max-widths (680px portrait, 820px landscape). Deal animation delays for nth-child 13–16 were added at 0.6s–0.75s increments, continuing the existing pattern.\n\nAll slice verification greps passed (exit 0). Browser verification confirmed 16 cards rendered in a 4×4 grid with 8 stars in the score bar.\n\n## Verification\n\nSlice verification command (`grep -q 'startPokemonGame' game.js && grep -q 'btn-pokemon' index.html && grep -q 'pairs-8' style.css && grep -q 'btn-pokemon' style.css`) exited 0. Browser checks confirmed element_count .card == 16 (pass) and text_visible ⭐×8 in score bar (pass). Existing Lätt/Medel buttons confirmed unchanged (still call `startGame(4)` and `startGame(6)`).\n\n## Requirements Advanced\n\n- R001 — Third button 'Pokémon-nivå!' added to start screen, launches 8-pair game via startPokemonGame()\n- R006 — Button has distinct golden-yellow (#f9ca24) color and ⚡ icon, visually separate from Lätt (default) and Medel (green)\n\n## Requirements Validated\n\n- R001 — Button present in index.html (grep confirmed), startPokemonGame() in game.js launches full 8-pair game loop — browser verification showed 16 cards and 8 stars\n- R006 — .btn-pokemon CSS rule with golden-yellow background (#f9ca24) and dark text (#333) confirmed in style.css — visually distinct from both default and .btn-green styles\n\n## New Requirements Surfaced\n\nNone.\n\n## Requirements Invalidated or Re-scoped\n\nNone.\n\n## Deviations\n\nNone. All steps executed as written in the plan.\n\n## Known Limitations\n\nCards use placeholder animal/dino images — real Pokémon sprites are deferred to S02 (Dynamic sprite loading with resilience).\n\n## Follow-ups\n\nNone beyond the planned S02 (sprite fetching) and S03 (polish) slices.\n\n## Files Created/Modified\n\n- `index.html` — Added .btn-pokemon button between Medel and .theme-picker div\n- `game.js` — Added startPokemonGame() — combines ANIMALS+DINOS, picks 8 pairs, sets board to pairs-8, runs full game loop\n- `style.css` — Added .btn-pokemon golden-yellow styles, #board.pairs-8 4×4 grid layout (portrait+landscape), deal animation delays for nth-child 13-16\n",
+      "full_uat_md": "# S01: Pokémon button and routing — UAT\n\n**Milestone:** M002\n**Written:** 2026-04-04T19:01:53.905Z\n\n**Milestone:** M002\n**Written:** 2026-04-04\n\n## UAT Type\n\n- UAT mode: live-runtime\n- Why this mode is sufficient: All deliverables are UI/game-loop changes in a browser-rendered single-page app. Functional correctness requires visually launching the game and confirming the board renders correctly.\n\n## Preconditions\n\n- App is running locally (e.g. `python3 -m http.server 8080` in the project root)\n- Browser pointed at `http://localhost:8080`\n- Start screen is visible with Lätt, Medel, and Pokémon-nivå! buttons\n\n## Smoke Test\n\nTap/click ⚡ Pokémon-nivå! — the game screen should appear with 16 face-down cards in a 4×4 grid and 8 stars in the score bar.\n\n## Test Cases\n\n### 1. Pokémon-nivå! button is present and visually distinct\n\n1. Load the app and view the start screen.\n2. Locate the three buttons: Lätt, Medel, ⚡ Pokémon-nivå!\n3. **Expected:** The Pokémon-nivå! button is golden-yellow, clearly different from the white/default Lätt button and the green Medel button. It shows \"⚡ Pokémon-nivå!\" and a subtitle \"8 par\".\n\n### 2. Clicking Pokémon-nivå! launches an 8-pair game\n\n1. Click ⚡ Pokémon-nivå! on the start screen.\n2. Wait for the game screen to appear.\n3. **Expected:** 16 cards are laid out in a 4×4 grid. The score bar shows ⭐×8. The board begins the brief reveal animation (cards flash face-up then flip back down).\n\n### 3. Cards show animal/dino placeholder images (not Pokémon sprites)\n\n1. Start a Pokémon game.\n2. After the reveal animation, flip one card.\n3. **Expected:** The face of the card shows an animal or dinosaur emoji/image (placeholder for now — real sprites arrive in S02). No broken image icons should appear.\n\n### 4. Full game loop works — match all 8 pairs and reach win screen\n\n1. Start a Pokémon game.\n2. Play through to completion, matching all 8 pairs.\n3. **Expected:** Confetti fires, win screen appears, \"Spela igen!\" button is visible. Pressing it returns to the start screen.\n\n### 5. Existing Lätt and Medel levels are unaffected\n\n1. From the start screen, click Lätt.\n2. **Expected:** 8 cards (4 pairs) in a 2×4 or similar layout — NOT a 4×4 grid.\n3. Return to start screen, click Medel.\n4. **Expected:** 12 cards (6 pairs) in appropriate layout — NOT a 4×4 grid.\n5. Both levels complete normally through to the win screen.\n\n### 6. Pokémon game is responsive on portrait and landscape orientation\n\n1. Start a Pokémon game on an iPad (or use browser DevTools to simulate iPad dimensions).\n2. Hold in portrait orientation — 820×1180 approximate.\n3. **Expected:** 16 cards fit in a 4×4 grid within max-width 680px, centered.\n4. Rotate to landscape — 1180×820 approximate.\n5. **Expected:** 4×4 grid expands to max-width 820px — cards are larger and still fit without horizontal scroll.\n\n## Edge Cases\n\n### Each new Pokémon game draws a fresh random selection\n\n1. Start a Pokémon game and note which animal/dino images appear.\n2. Reach the win screen and tap \"Spela igen!\" to return to start.\n3. Start a new Pokémon game.\n4. **Expected:** The set of 8 animals/dinos is likely different from the previous game (random draw from 16-item pool; may occasionally repeat but should vary most of the time).\n\n### Deal animation plays for all 16 cards\n\n1. Start a Pokémon game.\n2. Watch the deal animation closely.\n3. **Expected:** All 16 cards animate in sequence — the last four cards (positions 13–16) animate with a slight delay after the first 12, completing around 0.75s after the first card.\n\n## Failure Signals\n\n- Pokémon-nivå! button is missing from the start screen — HTML change not applied\n- Button appears white/green instead of golden-yellow — `.btn-pokemon` CSS rule missing or overridden\n- Game screen shows 8 or 12 cards instead of 16 — `totalPairs` not set to 8 or `.pairs-8` grid not applied\n- Score bar shows fewer than 8 stars — `totalPairs` not set correctly\n- Lätt/Medel now show 16 cards — `startGame()` was accidentally modified\n\n## Not Proven By This UAT\n\n- Real Pokémon sprite fetching (deferred to S02)\n- Loading spinner during sprite fetch (deferred to S02/S03)\n- Failure/fallback handling for broken sprites (deferred to S02)\n- Pokémon button icon/badge polish (deferred to S03)\n\n## Notes for Tester\n\nThe placeholder animal/dino images on Pokémon-level cards are intentional for S01. The Pokémon branding of this level is currently only the button label and color — the actual Pokémon sprites arrive in S02. Focus testing on the routing, grid layout, star count, and existing level preservation.\n\n",
       "goal": "Start screen shows a visually distinct \"Pokémon-nivå!\" button that launches an 8-pair memory game using placeholder animal/dino images, with a responsive 4×4 grid layout.",
       "success_criteria": "- Start screen has a third button labeled \"Pokémon-nivå!\" with distinct visual styling (unique color and emoji/icon) — satisfies R001 and R006\n- Clicking the Pokémon button calls `startPokemonGame()` which sets up an 8-pair game using existing animal/dino images as placeholders\n- Board renders in a responsive 4×4 grid (`.pairs-8` CSS) that works in both portrait and landscape on iPad\n- Full game loop works: reveal → shuffle → play → match all → win → return to start\n- Existing Lätt (4-pair) and Medel (6-pair) buttons still work identically",
       "proof_level": "integration — real runtime in browser required to verify button click → game → win flow",
@@ -288,11 +288,11 @@
       "completed_at": null,
       "full_summary_md": "",
       "full_uat_md": "",
-      "goal": "Replace placeholder images with runtime-fetched Pokémon sprites, validate each image, skip and replace failures, wait for all to load before board reveal",
-      "success_criteria": "- selectRandomPokemon(8) returns 8 unique IDs from 1-151\n- loadPokemonSprites(ids) fetches sprites from PokéAPI CDN, validates each image, returns array of loaded images\n- Failed sprites are skipped and replacements drawn until 8 valid pairs exist\n- Board rendering waits for all images loaded (no broken image icons)\n- Each Pokémon game shows different random selection",
-      "proof_level": "Operational — works under slow network (3G throttle), handles sprite failures (block one URL in dev tools), retries and shows 8 valid pairs",
-      "integration_closure": "S03 adds loading spinner and error message for better UX during fetch",
-      "observability_impact": "Console log: selected IDs, fetch start/success/failure per sprite, retry attempts, final loaded count",
+      "goal": "Pokémon level fetches real sprites from the PokeAPI CDN at runtime, randomly selecting 8 from the first 151 each round, with loading indicator and resilient failure handling.",
+      "success_criteria": "- `startPokemonGame()` fetches sprites from `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{id}.png` (R003)\n- Each game randomly selects 8 Pokémon IDs from 1–151, different each round (R002)\n- A loading indicator is visible while sprites load, board only appears after all 8 pairs are confirmed loaded (R004)\n- Failed sprite loads trigger replacement with a new random Pokémon; retry cap prevents infinite loops; if network is completely down, user sees an error message (R005)\n- Existing Lätt and Medel game modes are unaffected\n- `grep -q 'raw.githubusercontent.com/PokeAPI/sprites' game.js` exits 0\n- `grep -q 'loading' style.css` exits 0\n- Browser verification: clicking ⚡ Pokémon-nivå! shows loading state, then 16 cards with real Pokémon sprite images",
+      "proof_level": "integration — real network fetching from external CDN required to prove the feature works",
+      "integration_closure": "- Upstream surfaces consumed: `startPokemonGame()` entry point from S01 in `game.js`, `.btn-pokemon` button in `index.html`, `#board.pairs-8` grid layout in `style.css`\n- New wiring introduced: async sprite fetch pipeline inside `startPokemonGame()`, loading overlay element in game screen, CSS for loading state\n- What remains before milestone is usable end-to-end: S03 visual polish (loading spinner animation, responsive tweaks, error message styling)",
+      "observability_impact": "- Runtime signals: console.warn for each failed sprite load (Pokémon ID, error reason), console.error if retry cap exhausted\n- Inspection surfaces: loading overlay visibility in DOM (`#pokemon-loading` element), board card count after load\n- Failure visibility: failed Pokémon IDs logged, retry count trackable via console, error message shown to user if total failure",
       "sequence": 0,
       "replan_triggered_at": null
     },
@@ -969,6 +969,91 @@
       "observability_impact": "",
       "full_plan_md": "",
       "sequence": 0
+    },
+    {
+      "milestone_id": "M002",
+      "slice_id": "S02",
+      "id": "T01",
+      "title": "Replaced static animal pool in startPokemonGame() with async CDN sprite pipeline: 8 unique Pokémon from 1–151 via PokeAPI sprites CDN, with loading overlay, parallel+serial retry logic (cap 25), and user-visible error on network failure",
+      "status": "complete",
+      "one_liner": "Replaced static animal pool in startPokemonGame() with async CDN sprite pipeline: 8 unique Pokémon from 1–151 via PokeAPI sprites CDN, with loading overlay, parallel+serial retry logic (cap 25), and user-visible error on network failure",
+      "narrative": "Read game.js, index.html, and style.css in full to understand existing card rendering patterns, state management, and screen lifecycle. Rewrote startPokemonGame() as async function with three new helpers (buildPokemonPool for Fisher-Yates shuffle of 1–151, pokemonSpriteUrl for CDN URL construction, loadPokemonSprites returning a Promise that kicks off 8 parallel Image() loads then uses serial tryNext() fallback on onerror, capping at 25 total attempts). Audio/state init and showScreen() happen before the async wait so the user sees the transition immediately. Loading overlay shown on start, hidden after sprites confirmed loaded, replaced with error message if cap hit. Card rendering uses identical HTML structure (card-inner > card-back + card-front > img) with animalId set to numeric Pokémon ID for correct matchFound() equality. Added #pokemon-loading overlay to index.html and corresponding CSS (absolute positioning, pulse animation). Added position:relative to .screen so overlay is correctly contained.",
+      "verification_result": "All four required grep checks from the task plan passed: CDN URL present in game.js, pokemon-loading referenced in index.html, style.css, and game.js. Structural checks confirmed: async function declaration, MAX_ATTEMPTS guard, loading show/hide calls, animalId: pokemon.id assignment, revealThenShuffle() call.",
+      "duration": "",
+      "completed_at": "2026-04-04T19:06:41.153Z",
+      "blocker_discovered": false,
+      "deviations": "MAX_ATTEMPTS set to 25 instead of plan's suggested 20 — the parallel initial batch of 8 consumes 8 attempts immediately, so 25 gives 17 serial retries. Plan said 'e.g. max 20' (non-binding).",
+      "known_issues": "None.",
+      "key_files": [
+        "game.js",
+        "index.html",
+        "style.css"
+      ],
+      "key_decisions": [
+        "Parallel initial 8 Image() loads + serial tryNext() fallback — faster happy path, correct failure recovery",
+        "MAX_ATTEMPTS=25 to account for 8 parallel starters consuming attempts simultaneously",
+        "position:relative added to .screen so #pokemon-loading absolute overlay stays contained",
+        "animalId stores numeric Pokémon ID so matchFound() strict equality works between paired cards"
+      ],
+      "full_summary_md": "---\nid: T01\nparent: S02\nmilestone: M002\nkey_files:\n  - game.js\n  - index.html\n  - style.css\nkey_decisions:\n  - Parallel initial 8 Image() loads + serial tryNext() fallback — faster happy path, correct failure recovery\n  - MAX_ATTEMPTS=25 to account for 8 parallel starters consuming attempts simultaneously\n  - position:relative added to .screen so #pokemon-loading absolute overlay stays contained\n  - animalId stores numeric Pokémon ID so matchFound() strict equality works between paired cards\nduration: \nverification_result: passed\ncompleted_at: 2026-04-04T19:06:41.153Z\nblocker_discovered: false\n---\n\n# T01: Replaced static animal pool in startPokemonGame() with async CDN sprite pipeline: 8 unique Pokémon from 1–151 via PokeAPI sprites CDN, with loading overlay, parallel+serial retry logic (cap 25), and user-visible error on network failure\n\n**Replaced static animal pool in startPokemonGame() with async CDN sprite pipeline: 8 unique Pokémon from 1–151 via PokeAPI sprites CDN, with loading overlay, parallel+serial retry logic (cap 25), and user-visible error on network failure**\n\n## What Happened\n\nRead game.js, index.html, and style.css in full to understand existing card rendering patterns, state management, and screen lifecycle. Rewrote startPokemonGame() as async function with three new helpers (buildPokemonPool for Fisher-Yates shuffle of 1–151, pokemonSpriteUrl for CDN URL construction, loadPokemonSprites returning a Promise that kicks off 8 parallel Image() loads then uses serial tryNext() fallback on onerror, capping at 25 total attempts). Audio/state init and showScreen() happen before the async wait so the user sees the transition immediately. Loading overlay shown on start, hidden after sprites confirmed loaded, replaced with error message if cap hit. Card rendering uses identical HTML structure (card-inner > card-back + card-front > img) with animalId set to numeric Pokémon ID for correct matchFound() equality. Added #pokemon-loading overlay to index.html and corresponding CSS (absolute positioning, pulse animation). Added position:relative to .screen so overlay is correctly contained.\n\n## Verification\n\nAll four required grep checks from the task plan passed: CDN URL present in game.js, pokemon-loading referenced in index.html, style.css, and game.js. Structural checks confirmed: async function declaration, MAX_ATTEMPTS guard, loading show/hide calls, animalId: pokemon.id assignment, revealThenShuffle() call.\n\n## Verification Evidence\n\n| # | Command | Exit Code | Verdict | Duration |\n|---|---------|-----------|---------|----------|\n| 1 | `grep -q 'raw.githubusercontent.com/PokeAPI/sprites' game.js` | 0 | ✅ pass | 50ms |\n| 2 | `grep -q 'pokemon-loading' index.html` | 0 | ✅ pass | 30ms |\n| 3 | `grep -q 'pokemon-loading' style.css` | 0 | ✅ pass | 30ms |\n| 4 | `grep -q 'pokemon-loading' game.js` | 0 | ✅ pass | 30ms |\n\n## Deviations\n\nMAX_ATTEMPTS set to 25 instead of plan's suggested 20 — the parallel initial batch of 8 consumes 8 attempts immediately, so 25 gives 17 serial retries. Plan said 'e.g. max 20' (non-binding).\n\n## Known Issues\n\nNone.\n\n## Files Created/Modified\n\n- `game.js`\n- `index.html`\n- `style.css`\n",
+      "description": "Replace the placeholder animal/dino pool in `startPokemonGame()` with a full async sprite-loading pipeline:\n\n1. **Random selection (R002):** Generate 8 unique random IDs from 1–151 using a shuffle-and-take approach. Selection happens per game start (D003), not globally.\n\n2. **Sprite URL construction (R003, D002):** Build URLs using `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{id}.png` — no API calls, just direct CDN image URLs.\n\n3. **Image preloading with failure handling (R004, R005, D004, D005):** For each selected Pokémon ID, create an `Image()` object and attempt to load the sprite. On load failure (onerror), log a warning and draw a replacement ID from the remaining pool (1–151 minus already-selected). Implement a retry cap (e.g. max 20 total attempts) to prevent infinite loops if the network is completely down. If the retry cap is hit before 8 valid pairs are obtained, show an error message to the user.\n\n4. **Loading indicator (R004):** Add a `#pokemon-loading` overlay element inside `#game-screen` in `index.html`. Show it when sprite fetching begins, hide it when all 8 pairs are confirmed loaded. CSS in `style.css` for centered text/emoji loading indicator.\n\n5. **Board rendering:** Once 8 valid sprites are confirmed loaded, build card data using the Pokémon ID as `animalId` and the CDN URL as `img`. Render to `#board` with `className = 'pairs-8'` following the existing pattern. Then call `revealThenShuffle()`.\n\n6. **Make `startPokemonGame` async:** The function becomes async since it awaits sprite loading. The `onclick` handler in `index.html` already calls it directly — `onclick=\"startPokemonGame()\"` works fine with async functions.\n\n**Key constraints:**\n- Keep the same initialization pattern (ensureAudio, playStartJingle, playBgMusic, reset state) at the top before the async work.\n- Show the game screen immediately with the loading overlay visible, so the user sees a transition from the start screen.\n- The `board.innerHTML` must be cleared and `board.className` set to `pairs-8` as before.\n- Card elements must use the same HTML structure (card-inner > card-back + card-front > img) so existing flip/match animations work.\n- The `img` src is the CDN URL; the `alt` should be `Pokémon {id}` for accessibility.\n- `matchFound()` compares `a.animalId === b.animalId` — so pairs must share the same `animalId` value (use the Pokémon ID number or string).\n- Do NOT touch `startGame()` or any other existing function.",
+      "estimate": "45m",
+      "files": [
+        "game.js",
+        "index.html",
+        "style.css"
+      ],
+      "verify": "grep -q 'raw.githubusercontent.com/PokeAPI/sprites' game.js && grep -q 'pokemon-loading' index.html && grep -q 'pokemon-loading' style.css && grep -q 'pokemon-loading' game.js",
+      "inputs": [
+        "`game.js` — contains current `startPokemonGame()` placeholder implementation using animal/dino pool",
+        "`index.html` — contains `#game-screen` where loading overlay needs to be added",
+        "`style.css` — needs loading indicator styles"
+      ],
+      "expected_output": [
+        "`game.js` — `startPokemonGame()` rewritten as async function with CDN sprite fetching, retry logic, and loading state management",
+        "`index.html` — `#pokemon-loading` overlay element added inside `#game-screen`",
+        "`style.css` — loading indicator styles for `#pokemon-loading`"
+      ],
+      "observability_impact": "",
+      "full_plan_md": "",
+      "sequence": 0
+    },
+    {
+      "milestone_id": "M002",
+      "slice_id": "S02",
+      "id": "T02",
+      "title": "Browser-verify Pokémon sprites load from CDN and board renders correctly",
+      "status": "pending",
+      "one_liner": "",
+      "narrative": "",
+      "verification_result": "",
+      "duration": "",
+      "completed_at": null,
+      "blocker_discovered": false,
+      "deviations": "",
+      "known_issues": "",
+      "key_files": [],
+      "key_decisions": [],
+      "full_summary_md": "",
+      "description": "Launch the app in the browser and verify the full Pokémon game flow end-to-end with real network requests.\n\n1. Start a local HTTP server for the project directory.\n2. Navigate to the app and click the ⚡ Pokémon-nivå! button.\n3. Verify the loading indicator appears (text_visible check for loading message).\n4. Wait for the board to render with 16 cards.\n5. Verify card images have `src` attributes pointing to `raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/` URLs.\n6. Verify 8 unique Pokémon IDs across the 16 cards (each ID appears exactly twice = pairs).\n7. Verify the score bar shows 8 stars.\n8. Navigate back and start a second game — verify at least one different Pokémon ID appears (randomization check).\n9. Check browser console for no errors (warnings for retried sprites are acceptable).\n10. Verify existing Lätt/Medel buttons still work (click Lätt, confirm 8 cards with animal images).\n\n**Key constraints:**\n- This task is verification only — no code changes.\n- If any check fails, document the failure clearly so it can be fixed.\n- Use browser tools (browser_navigate, browser_click, browser_evaluate, browser_assert) for all verification.",
+      "estimate": "20m",
+      "files": [
+        "game.js",
+        "index.html"
+      ],
+      "verify": "Browser assertions: 16 .card elements visible, img src contains 'raw.githubusercontent.com/PokeAPI/sprites', 8 stars in score bar, no JS errors in console",
+      "inputs": [
+        "`game.js` — rewritten startPokemonGame() from T01",
+        "`index.html` — with #pokemon-loading overlay from T01",
+        "`style.css` — with loading indicator styles from T01"
+      ],
+      "expected_output": [
+        "`game.js` — verified working (no changes expected)",
+        "`index.html` — verified working (no changes expected)"
+      ],
+      "observability_impact": "",
+      "full_plan_md": "",
+      "sequence": 0
     }
   ],
   "decisions": [
@@ -1042,6 +1127,18 @@
       "rationale": "User chose 'Stand out — unique color/icon' option. Makes it clear this is a different kind of level, more exciting for the user's son to discover. Should still fit the overall design language.",
       "revisable": "Yes — if user feedback suggests it's too visually noisy",
       "made_by": "human",
+      "superseded_by": null
+    },
+    {
+      "seq": 7,
+      "id": "D007",
+      "when_context": "M002/S02",
+      "scope": "pattern",
+      "decision": "S02 task decomposition for sprite loading",
+      "choice": "2 tasks: T01 full implementation (fetch + retry + loading UI), T02 browser verification",
+      "rationale": "The sprite fetch, retry logic, loading indicator, and board rendering are a single tightly-coupled async flow — splitting implementation across tasks would create artificial seams. The CDN URL pattern (D002) means no API auth, just image loads. Browser verification is separated because it requires real network calls to the GitHub CDN and uses browser automation tools to confirm the complete flow.",
+      "revisable": "Yes",
+      "made_by": "agent",
       "superseded_by": null
     }
   ],
@@ -1298,6 +1395,50 @@
       "verdict": "✅ pass",
       "duration_ms": 80,
       "created_at": "2026-04-04T19:00:19.164Z"
+    },
+    {
+      "id": 24,
+      "task_id": "T01",
+      "slice_id": "S02",
+      "milestone_id": "M002",
+      "command": "grep -q 'raw.githubusercontent.com/PokeAPI/sprites' game.js",
+      "exit_code": 0,
+      "verdict": "✅ pass",
+      "duration_ms": 50,
+      "created_at": "2026-04-04T19:06:41.153Z"
+    },
+    {
+      "id": 25,
+      "task_id": "T01",
+      "slice_id": "S02",
+      "milestone_id": "M002",
+      "command": "grep -q 'pokemon-loading' index.html",
+      "exit_code": 0,
+      "verdict": "✅ pass",
+      "duration_ms": 30,
+      "created_at": "2026-04-04T19:06:41.153Z"
+    },
+    {
+      "id": 26,
+      "task_id": "T01",
+      "slice_id": "S02",
+      "milestone_id": "M002",
+      "command": "grep -q 'pokemon-loading' style.css",
+      "exit_code": 0,
+      "verdict": "✅ pass",
+      "duration_ms": 30,
+      "created_at": "2026-04-04T19:06:41.153Z"
+    },
+    {
+      "id": 27,
+      "task_id": "T01",
+      "slice_id": "S02",
+      "milestone_id": "M002",
+      "command": "grep -q 'pokemon-loading' game.js",
+      "exit_code": 0,
+      "verdict": "✅ pass",
+      "duration_ms": 30,
+      "created_at": "2026-04-04T19:06:41.153Z"
     }
   ]
 }
