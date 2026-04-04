@@ -29,3 +29,19 @@ The `#pokemon-loading` overlay uses `position:absolute` to cover the game screen
 
 ### `animalId` must store a primitive value for `matchFound()` strict equality to work
 `matchFound()` compares `a.animalId === b.animalId` with strict equality. For Pokémon cards, `animalId` is set to the numeric Pokémon ID (e.g., `42`). If you ever use an object or array, pairs will never match. Keep `animalId` as a primitive string or number.
+
+## M002 / S03 — Visual polish and integration
+
+### `#pokemon-loading .pokemon-spinner` is DOM-present but not selector-visible — use browser_evaluate for hidden-element checks
+The spinner div lives inside `#pokemon-loading` which has `display:none` on the start screen. Any `selector_visible` assertion on `.pokemon-spinner` will always fail there. Use `browser_evaluate document.querySelector('#pokemon-loading .pokemon-spinner') !== null` to confirm DOM presence of elements hidden by an ancestor's `display:none`.
+
+### Spinner color `#f9ca24` matches `.btn-pokemon` background for visual coherence
+The `border-top-color` on `.pokemon-spinner` is `#f9ca24` — the same yellow used for the Pokémon button. If the button color changes, update the spinner ring color to match.
+
+## M002 — Cross-cutting
+
+### Parallel Image() batch sizing: MAX_ATTEMPTS must account for parallel starters
+When kicking off N parallel `Image()` loads that each consume from a shared attempt counter, the attempt cap must be at least N + desired_serial_retries. For 8 parallel starters: 8 (consumed immediately) + 17 (serial retries) = 25. Setting MAX_ATTEMPTS to only the desired retry count (e.g., 20) means exhaustion is reachable before serial retries even begin.
+
+### Async game initializers: run synchronous state setup before any `await`
+In `startPokemonGame()`, audio/state init and `showScreen()` execute before the `await loadPokemonSprites()` call. This ensures the screen transition is immediate while sprites load in the background. If you restructure this, keep sync setup before the first await or the UI will stall during network fetch.
