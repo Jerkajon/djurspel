@@ -391,6 +391,59 @@ function startGame(pairs) {
   revealThenShuffle();
 }
 
+// ===== POKÉMON LEVEL =====
+function startPokemonGame() {
+  ensureAudio();
+  playStartJingle();
+  playBgMusic();
+
+  totalPairs = 8;
+  matchedPairs = 0;
+  flippedCards = [];
+  isLocked = false;
+
+  // Combine all animals and dinos, shuffle, pick 8
+  const allCreatures = [...ANIMALS, ...DINOS].sort(() => Math.random() - 0.5);
+  const selected = allCreatures.slice(0, 8);
+
+  // Create pairs and shuffle
+  const cardData = [...selected, ...selected]
+    .sort(() => Math.random() - 0.5)
+    .map((animal, i) => ({ id: i, animalId: animal.id, img: animal.img, flipped: false, matched: false }));
+
+  cards = cardData;
+
+  // Render
+  board.innerHTML = '';
+  board.className = 'pairs-8';
+
+  cards.forEach(card => {
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.dataset.id = card.id;
+    el.innerHTML = `
+      <div class="card-inner">
+        <div class="card-face card-back"></div>
+        <div class="card-face card-front">
+          <img src="${card.img}" alt="${card.animalId}" draggable="false" />
+        </div>
+      </div>
+    `;
+    el.addEventListener('click', () => flipCard(card.id));
+    el.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      flipCard(card.id);
+    });
+    board.appendChild(el);
+  });
+
+  updateStars();
+  showScreen(gameScreen);
+
+  // Brief reveal → shuffle → unlock
+  revealThenShuffle();
+}
+
 // ===== REVEAL THEN SHUFFLE =====
 function revealThenShuffle() {
   isLocked = true;
