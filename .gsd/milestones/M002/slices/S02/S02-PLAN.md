@@ -29,7 +29,7 @@
   - Estimate: 45m
   - Files: game.js, index.html, style.css
   - Verify: grep -q 'raw.githubusercontent.com/PokeAPI/sprites' game.js && grep -q 'pokemon-loading' index.html && grep -q 'pokemon-loading' style.css && grep -q 'pokemon-loading' game.js
-- [ ] **T02: Browser-verify Pokémon sprites load from CDN and board renders correctly** — Launch the app in the browser and verify the full Pokémon game flow end-to-end with real network requests.
+- [x] **T02: Browser-verified Pokémon game: CDN sprites load from PokeAPI, 16 cards in pairs-8 layout, 8 unique pairs, 8 stars, randomization confirmed across games, Lätt/Medel backward compat intact, zero console errors** — Launch the app in the browser and verify the full Pokémon game flow end-to-end with real network requests.
 
 1. Start a local HTTP server for the project directory.
 2. Navigate to the app and click the ⚡ Pokémon-nivå! button.
