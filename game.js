@@ -95,6 +95,18 @@ startDinoDance();
 initTheme();
 preloadThemeAssets();
 
+// ===== BLAZE AND THE MONSTER MACHINES POOL =====
+const BLAZE_CHARS = [
+  { id: 'blaze',     img: 'assets/blaze/blaze.webp' },
+  { id: 'crusher',   img: 'assets/blaze/crusher.webp' },
+  { id: 'pickle',    img: 'assets/blaze/pickle.webp' },
+  { id: 'starla',    img: 'assets/blaze/starla.webp' },
+  { id: 'zeg',       img: 'assets/blaze/zeg.webp' },
+  { id: 'darington', img: 'assets/blaze/darington.webp' },
+  { id: 'stripes',   img: 'assets/blaze/stripes.webp' },
+  { id: 'gabby',     img: 'assets/blaze/gabby.webp' },
+];
+
 // ===== ANIMAL & DINOSAUR ILLUSTRATION POOL =====
 const ANIMALS = [
   { id: 'cat', img: 'assets/animals/cat.webp' },
@@ -556,6 +568,51 @@ async function startPokemonGame() {
   updateStars();
 
   // Brief reveal → shuffle → unlock
+  revealThenShuffle();
+}
+
+// ===== BLAZE LEVEL =====
+function startBlazeGame() {
+  ensureAudio();
+  playStartJingle();
+  playBgMusic();
+
+  totalPairs = 8;
+  matchedPairs = 0;
+  flippedCards = [];
+  isLocked = false;
+
+  const cardData = [...BLAZE_CHARS, ...BLAZE_CHARS]
+    .sort(() => Math.random() - 0.5)
+    .map((char, i) => ({ id: i, animalId: char.id, img: char.img, flipped: false, matched: false }));
+
+  cards = cardData;
+
+  board.innerHTML = '';
+  board.className = 'pairs-8';
+
+  cards.forEach(card => {
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.dataset.id = card.id;
+    el.innerHTML = `
+      <div class="card-inner">
+        <div class="card-face card-back"></div>
+        <div class="card-face card-front">
+          <img src="${card.img}" alt="${card.animalId}" draggable="false" />
+        </div>
+      </div>
+    `;
+    el.addEventListener('click', () => flipCard(card.id));
+    el.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      flipCard(card.id);
+    });
+    board.appendChild(el);
+  });
+
+  updateStars();
+  showScreen(gameScreen);
   revealThenShuffle();
 }
 
