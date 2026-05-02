@@ -1,5 +1,5 @@
 // ===== THEME SYSTEM =====
-const THEMES = ['default', 'jungle'];
+const THEMES = ['default', 'jungle', 'space'];
 let currentTheme = 'default';
 
 function initTheme() {
@@ -37,6 +37,8 @@ function preloadThemeAssets() {
     'assets/themes/default/card-back.webp',
     'assets/themes/jungle/bg.webp',
     'assets/themes/jungle/card-back.webp',
+    'assets/themes/space/bg.webp',
+    'assets/themes/space/card-back.webp',
   ];
   assets.forEach(src => {
     const img = new Image();
@@ -105,6 +107,22 @@ const BLAZE_CHARS = [
   { id: 'darington', img: 'assets/blaze/darington.webp' },
   { id: 'stripes',   img: 'assets/blaze/stripes.webp' },
   { id: 'gabby',     img: 'assets/blaze/gabby.webp' },
+];
+
+// ===== CLEO / MYSTERY LANE POOL =====
+// 11 unika poser av Clever, Bro och McFlare — startCleoGame() väljer 8 random per spel.
+const CLEO_CHARS = [
+  { id: 'clever-1',  img: 'assets/cleo/clever-1.webp' },
+  { id: 'clever-2',  img: 'assets/cleo/clever-2.webp' },
+  { id: 'clever-3',  img: 'assets/cleo/clever-3.webp' },
+  { id: 'clever-4',  img: 'assets/cleo/clever-4.webp' },
+  { id: 'bro-1',     img: 'assets/cleo/bro-1.webp' },
+  { id: 'bro-2',     img: 'assets/cleo/bro-2.webp' },
+  { id: 'bro-3',     img: 'assets/cleo/bro-3.webp' },
+  { id: 'mcflare-1', img: 'assets/cleo/mcflare-1.webp' },
+  { id: 'mcflare-2', img: 'assets/cleo/mcflare-2.webp' },
+  { id: 'mcflare-3', img: 'assets/cleo/mcflare-3.webp' },
+  { id: 'mcflare-4', img: 'assets/cleo/mcflare-4.webp' },
 ];
 
 // ===== ANIMAL & DINOSAUR ILLUSTRATION POOL =====
@@ -583,6 +601,54 @@ function startBlazeGame() {
   isLocked = false;
 
   const cardData = [...BLAZE_CHARS, ...BLAZE_CHARS]
+    .sort(() => Math.random() - 0.5)
+    .map((char, i) => ({ id: i, animalId: char.id, img: char.img, flipped: false, matched: false }));
+
+  cards = cardData;
+
+  board.innerHTML = '';
+  board.className = 'pairs-8';
+
+  cards.forEach(card => {
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.dataset.id = card.id;
+    el.innerHTML = `
+      <div class="card-inner">
+        <div class="card-face card-back"></div>
+        <div class="card-face card-front">
+          <img src="${card.img}" alt="${card.animalId}" draggable="false" />
+        </div>
+      </div>
+    `;
+    el.addEventListener('click', () => flipCard(card.id));
+    el.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      flipCard(card.id);
+    });
+    board.appendChild(el);
+  });
+
+  updateStars();
+  showScreen(gameScreen);
+  revealThenShuffle();
+}
+
+// ===== CLEO / MYSTERY LANE LEVEL =====
+function startCleoGame() {
+  ensureAudio();
+  playStartJingle();
+  playBgMusic();
+
+  totalPairs = 8;
+  matchedPairs = 0;
+  flippedCards = [];
+  isLocked = false;
+
+  // Slumpa 8 av poolens 11 bilder så varje spelomgång får olika urval
+  const selected = [...CLEO_CHARS].sort(() => Math.random() - 0.5).slice(0, 8);
+
+  const cardData = [...selected, ...selected]
     .sort(() => Math.random() - 0.5)
     .map((char, i) => ({ id: i, animalId: char.id, img: char.img, flipped: false, matched: false }));
 

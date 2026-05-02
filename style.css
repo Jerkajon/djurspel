@@ -57,6 +57,23 @@
   --float-shape-color: #4a8c2a;
 }
 
+/* === Space Theme === */
+[data-theme="space"] {
+  --bg-top: #241a54;
+  --bg-bottom: #0b0826;
+  --bg-image: url('assets/themes/space/bg.webp');
+  --card-back-image: url('assets/themes/space/card-back.webp');
+  --card-back-color: #4a3f8c;
+  --card-back-border: rgba(255,255,255,0.25);
+  --accent: #c44ad8;
+  --accent-shadow: #7a2a90;
+  --success: #5dade2;
+  --success-glow: rgba(93, 173, 226, 0.4);
+  --btn-secondary: #5dade2;
+  --btn-secondary-shadow: #1f6f9c;
+  --float-shape-color: #b58cff;
+}
+
 html, body {
   height: 100%;
   overflow: hidden;
@@ -179,6 +196,15 @@ body::after {
   font-size: 1.4rem;
   opacity: 0.85;
   font-weight: 600;
+}
+
+/* ===== LEVEL GRID ===== */
+.level-grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
 }
 
 /* ===== DANCING DINOS ===== */
@@ -323,6 +349,22 @@ body::after {
 .btn-blaze:hover {
   background: linear-gradient(135deg, #ff8c42 0%, #e74c3c 100%);
   box-shadow: 0 8px 0 #8e1a0d, 0 12px 28px rgba(0,0,0,0.3);
+}
+
+.btn-cleo {
+  background: linear-gradient(135deg, #8e44ad 0%, #c2185b 100%);
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  box-shadow: 0 7px 0 #4a148c, 0 10px 24px rgba(0,0,0,0.25);
+}
+
+.btn-cleo:active {
+  box-shadow: 0 2px 0 #4a148c, 0 4px 10px rgba(0,0,0,0.25);
+}
+
+.btn-cleo:hover {
+  background: linear-gradient(135deg, #a55bc4 0%, #d63384 100%);
+  box-shadow: 0 8px 0 #4a148c, 0 12px 28px rgba(0,0,0,0.3);
 }
 
 .btn-small {
@@ -535,6 +577,15 @@ body::after {
   background: linear-gradient(135deg, #2d5016, #4a8c2a);
 }
 
+.theme-btn-space {
+  background: linear-gradient(135deg, #241a54, #0b0826);
+  background-image:
+    radial-gradient(circle at 30% 30%, #fff 1px, transparent 1.5px),
+    radial-gradient(circle at 70% 60%, #fff 1px, transparent 1.5px),
+    radial-gradient(circle at 50% 80%, #ffd 1px, transparent 1.5px),
+    linear-gradient(135deg, #241a54, #0b0826);
+}
+
 /* ===== MUTE BUTTON ===== */
 .mute-btn {
   width: 56px;
@@ -723,8 +774,12 @@ body::after {
     --gap: 18px;
     --radius: 26px;
   }
+  .start-content {
+    gap: 14px;
+    padding: 20px 16px;
+  }
   .start-content h2 {
-    font-size: 3.4rem;
+    font-size: 2.6rem;
   }
   .big-emoji {
     font-size: 9rem;
@@ -735,13 +790,48 @@ body::after {
     border-radius: 24px;
   }
   .theme-btn {
-    width: 68px;
-    height: 68px;
-    border-radius: 18px;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
   }
   .dino-dance {
-    width: 180px;
-    height: 180px;
+    width: 130px;
+    height: 130px;
+  }
+
+  /* Nivåval i 2-kolumnsgrid på iPad — sista knappen centrerad i egen rad */
+  .level-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    max-width: 720px;
+  }
+  .level-grid .btn-start {
+    min-width: 0;
+    width: 100%;
+    padding: 18px 20px;
+    font-size: 1.6rem;
+  }
+  .level-grid .btn-start:last-child {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: auto;
+    min-width: 280px;
+  }
+}
+
+/* iPad landscape — höjden är låg, lägg knapparna i 3 kolumner */
+@media (min-width: 768px) and (orientation: landscape) {
+  .level-grid {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 900px;
+  }
+  /* Sista knappen tar upp 1 cell igen (5 knappar = 3+2 layout) */
+  .level-grid .btn-start:last-child {
+    grid-column: auto;
+    justify-self: stretch;
+    width: 100%;
+    min-width: 0;
   }
 }
 

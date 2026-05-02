@@ -33,25 +33,32 @@
         </div>
         <h2>Minneslek!</h2>
         <p>Hitta alla par!</p>
-        <button class="btn btn-start" onclick="startGame(4)">
-          <span>Lätt</span>
-          <small>4 par</small>
-        </button>
-        <button class="btn btn-start btn-green" onclick="startGame(6)">
-          <span>Medel</span>
-          <small>6 par</small>
-        </button>
-        <button class="btn btn-start btn-pokemon" onclick="startPokemonGame()">
-          <span>⚡ Pokémon-nivå!</span>
-          <small>8 par</small>
-        </button>
-        <button class="btn btn-start btn-blaze" onclick="startBlazeGame()">
-          <span>🚗 Blaze!</span>
-          <small>8 par</small>
-        </button>
+        <div class="level-grid">
+          <button class="btn btn-start" onclick="startGame(4)">
+            <span>Lätt</span>
+            <small>4 par</small>
+          </button>
+          <button class="btn btn-start btn-green" onclick="startGame(6)">
+            <span>Medel</span>
+            <small>6 par</small>
+          </button>
+          <button class="btn btn-start btn-pokemon" onclick="startPokemonGame()">
+            <span>⚡ Pokémon-nivå!</span>
+            <small>8 par</small>
+          </button>
+          <button class="btn btn-start btn-blaze" onclick="startBlazeGame()">
+            <span>🚗 Blaze!</span>
+            <small>8 par</small>
+          </button>
+          <button class="btn btn-start btn-cleo" onclick="startCleoGame()">
+            <span>🔍 Cleo löser fallet</span>
+            <small>8 par</small>
+          </button>
+        </div>
         <div class="theme-picker">
           <div class="theme-btn theme-btn-default active" data-theme="default" onclick="setTheme('default')" title="Magi"></div>
           <div class="theme-btn theme-btn-jungle" data-theme="jungle" onclick="setTheme('jungle')" title="Djungel"></div>
+          <div class="theme-btn theme-btn-space" data-theme="space" onclick="setTheme('space')" title="Rymden"></div>
           <button class="mute-btn" onclick="toggleMute()" title="Ljud">🔊</button>
         </div>
       </div>
