@@ -1,4 +1,4 @@
-const CACHE_NAME = 'djurspel-v4';
+const CACHE_NAME = 'djurspel-v5';
 const ASSETS = [
   '/',
   '/index.html',

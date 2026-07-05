@@ -376,7 +376,8 @@ function startGame(pairs) {
   const shuffledAnimals = [...ANIMALS].sort(() => Math.random() - 0.5);
   const shuffledDinos = [...DINOS].sort(() => Math.random() - 0.5);
 
-  const dinoCount = Math.max(1, Math.floor(Math.random() * Math.min(3, pairs)));
+  // Minst så många dinos att djurpoolen (10 st) räcker till resten
+  const dinoCount = Math.max(pairs - ANIMALS.length, Math.max(1, Math.floor(Math.random() * Math.min(3, pairs))));
   const animalCount = pairs - dinoCount;
   const selected = [
     ...shuffledDinos.slice(0, dinoCount),
@@ -440,15 +441,15 @@ function pokemonSpriteUrl(id) {
 }
 
 /**
- * Preload 8 unique Pokémon sprites with failure resilience.
+ * Preload `needed` unique Pokémon sprites with failure resilience.
  * On load failure, replaces the failed ID with the next unused ID from the pool.
  * Caps total attempts at MAX_ATTEMPTS to handle full network outages.
- * Returns a Promise that resolves to an array of { id, url } objects (length 8),
+ * Returns a Promise that resolves to an array of { id, url } objects (length `needed`),
  * or rejects with an Error if the cap is reached.
  */
-function loadPokemonSprites() {
-  const NEEDED = 8;
-  const MAX_ATTEMPTS = 25;
+function loadPokemonSprites(needed = 8) {
+  const NEEDED = needed;
+  const MAX_ATTEMPTS = NEEDED * 3 + 1;
   const pool = buildPokemonPool(); // shuffled 1–151
 
   return new Promise((resolve, reject) => {
@@ -513,19 +514,19 @@ function loadPokemonSprites() {
   });
 }
 
-async function startPokemonGame() {
+async function startPokemonGame(pairs = 8) {
   ensureAudio();
   playStartJingle();
   playBgMusic();
 
-  totalPairs = 8;
+  totalPairs = pairs;
   matchedPairs = 0;
   flippedCards = [];
   isLocked = true; // locked until board is ready
 
   // Show game screen immediately with loading overlay visible
   board.innerHTML = '';
-  board.className = 'pairs-8';
+  board.className = `pairs-${pairs}`;
   updateStars();
   showScreen(gameScreen);
 
@@ -534,7 +535,7 @@ async function startPokemonGame() {
 
   let pokemonSprites;
   try {
-    pokemonSprites = await loadPokemonSprites();
+    pokemonSprites = await loadPokemonSprites(pairs);
   } catch (err) {
     console.error('[Pokémon] Sprite-laddning misslyckades:', err);
     if (loadingEl) {
@@ -561,7 +562,7 @@ async function startPokemonGame() {
 
   // Render board
   board.innerHTML = '';
-  board.className = 'pairs-8';
+  board.className = `pairs-${pairs}`;
 
   cards.forEach(card => {
     const el = document.createElement('div');
@@ -839,6 +840,8 @@ function mismatch(a, b) {
 
 // ===== STARS =====
 function updateStars() {
+  // Mindre stjärnor på svåra nivåer så alla ryms på en rad
+  starsEl.classList.toggle('stars-many', totalPairs > 8);
   let html = '';
   for (let i = 0; i < totalPairs; i++) {
     const earned = i < matchedPairs ? 'earned' : '';
